@@ -1,8 +1,7 @@
 import numpy as np
 from scipy.integrate import ode
 import matplotlib.pyplot as plt
-
-
+from numpy import linalg as LA
 
 #---------------------
 #Generate basis vectors
@@ -17,6 +16,10 @@ for x in range(0,3):
 mr=2*np.random.rand(3,3)-1
 mi=2*np.random.rand(3,3)-1
 m=np.asarray(mr+1j*mi)
+
+print "EIGENVALUES: "
+w,v =  LA.eig(m)
+print w
 
 #Time independent hamiltonian,
 #define as matrix product for DE solver:
@@ -53,8 +56,8 @@ for i in range(0,probs.shape[0]):
 	for j in range(0,probs.shape[1]):
 		probs[i,j] = np.absolute(np.dot(output[j],f[i]))**2
 
-print time
-print probs
+#print time
+#print probs
 
 #Plot oscillation amplitudes
 fig, ax = plt.subplots()
