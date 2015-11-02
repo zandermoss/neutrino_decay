@@ -80,9 +80,12 @@ def calcU(param):
 		@return		 :   Sets mixing matrix.
 		"""
 		if(param.numneu == 2):
-			return self.R(1,2,0,param)
+			return R(1,2,0,param)
 		elif(param.numneu == 3):
 			return np.dot(R(2,3,0,param),np.dot(R(1,3,1,param),R(1,2,0,param)))
+
+
+
 		elif(param.numneu == 4):
 			return np.dot(R(3,4,0,param),np.dot(R(2,4,2,param),np.dot(R(1,4,0,param),np.dot(R(2,3,0,param),np.dot(R(1,3,1,param),R(1,2,0,param))))))
 		elif(param.numneu == 5):

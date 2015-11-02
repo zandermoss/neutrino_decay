@@ -10,7 +10,6 @@ Log :
 	include an __init__ to separate the class global
 	properties from its instances.
 """
-
 # python standard modules
 import numpy as np
 import random
@@ -106,7 +105,7 @@ class PhysicsConstants(object):
 		# ## NEUTRINO OSCILLATION PARAMETERS ##
 		#===============================================================================
 		
-		self.numneu = 3					  # number of neutrinos
+		self.numneu = 2					  # number of neutrinos
 		self.numneumax = 6				   # maximum neutrino number
 		self.neutype = 'neutrino'
 		#neutype = 'antineutrino'
@@ -230,7 +229,7 @@ class PhysicsConstants(object):
 		
 		# d-CP phases
 		self.dcp = np.zeros([self.numneumax-2+1],complex)
-		self.dcp[0] = 1.0
+		self.dcp[0] = 0.0
 		self.dcp[1] = self.delta1
 		self.dcp[2] = self.delta2
 		self.dcp[3] = self.delta3
