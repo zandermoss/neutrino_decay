@@ -21,7 +21,8 @@ hamgen=HamGen.HamGen(param)
 
 eig_dcy=np.zeros(param.numneu)
 for i in range(0,len(eig_dcy)):
-	eig_dcy[i]=random.random()*1e-5
+	#eig_dcy[i]=random.random()*1e-5
+	eig_dcy[i]=0
 
 H=hamgen.gen(eig_dcy,1)
 
