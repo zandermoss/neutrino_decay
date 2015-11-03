@@ -25,7 +25,7 @@ class NumSolve(object):
 
 	
 	def prop(self,l):
-	
+
 		for i in range(0,self.param.numneu):
 			self.Ht[i,i] = cmath.exp(-1j*self.w[i]*l)
 		

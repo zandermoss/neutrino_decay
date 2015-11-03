@@ -17,7 +17,7 @@ class HamGen(object):
 		self.param=param
 
 
-	def gen(self,eig_dcy):	
+	def gen(self,eig_dcy,E):	
 		#Randomized self.parameters to generate conjugation matrices
 		#We will work in the flavor basis, so Um and Ug map from 
 		#the mass basis to the flavor basis and the decay basis 
@@ -35,26 +35,22 @@ class HamGen(object):
 		Md=np.zeros([self.param.numneu,self.param.numneu],complex)
 		Gd=np.zeros([self.param.numneu,self.param.numneu],complex)
 		
-		for i in range(0,self.param.numneu+0):
+		for i in range(0,self.param.numneu):
 		
-		    print "m2:", self.param.dm2[1,i+1] #FIXME: mass constants-> Add in energy dependence!
-		    Md[i,i]= self.param.dm2[1,i+1] #FIXME: mass constants-> Add in energy dependence!
+		    Md[i,i]= self.param.dm2[1,i+1]/(2*E) #FIXME: mass constants-> Add in energy dependence!
 		    #Md[i,i]= 1 #FIXME: mass constants-> Add in energy dependence!
-		    Gd[i,i]= eig_dcy[i]*1e-5 #FIXME
+		    Gd[i,i]= eig_dcy[i]/E #FIXME
 		
 		
-		print Md
 		
 		M= np.dot(Um,np.dot(Md,Um.conj().T))
 		G= np.dot(Ug,np.dot(Gd,Ug.conj().T))
-		
+	
 		#Assemble Hamiltonian
 		H=np.zeros([self.param.numneu,self.param.numneu],complex)
 		
 		H= M -1j*G
 		
-		print H
-	
 		return H
 	
 
