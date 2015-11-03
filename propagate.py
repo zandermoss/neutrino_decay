@@ -12,6 +12,7 @@ import math
 
 import ApproxSolve
 import NumSolve
+import DeSolve
 import HamGen 
 
 #Real parameters
@@ -30,7 +31,7 @@ print "H:", H
 
 asolve = ApproxSolve.ApproxSolve(H,param)
 nsolve = NumSolve.NumSolve(H,param)
-
+desolve= DeSolve.DeSolve(H,param)
 
 dist=np.arange(0,100000)
 
@@ -43,10 +44,13 @@ for i in range(0,len(dist)):
 	n_amp[i]= nsolve.scalar_prop(dist[i],0,0)
 
 
+d_amp=desolve.prop(dist,0,0)
+
 #Plot oscillation amplitudes
 fig, ax = plt.subplots()
-ax.plot(dist,n_amp,'r-',label='P(e->e): Numerical')
+ax.plot(dist,n_amp,'r-',label='P(e->e): Diagonalized')
 ax.plot(dist,a_amp,'b-',label='P(e->e): Approximate')
+ax.plot(dist,a_amp,'g-',label='P(e->e): Numerical')
 
 ax.set_xlabel("Distance (A.U.)")
 ax.set_ylabel("Oscillation Amplitude")
