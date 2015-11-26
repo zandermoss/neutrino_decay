@@ -17,27 +17,47 @@ class SUGen(object):
 		self.param=param
 
 		self.lamb=np.zeros([self.param.numneu,self.param.numneu],complex)
-		self.lamb[0,1]=0.5
-		self.lamb[1,0]=0.25
 
 	def sample_params(self):
-		#do stuff
-		H=np.zeros([self.param.numneu,self.param.numneu],complex)
-	
+		d=self.param.numneu
 
+		m=1
+		while (m<=d-1):
+			print "M:",m
+			n=0
+			while (n<=m-1):
+				print "m,n:",m,",",n
+				self.lamb[m,n]=self.sample_phase()
+				self.lamb[n,m]=self.sample_angle(n,m)
+				n+=1
+			m+=1
+
+	def sample_phase(self):	
+		u=random.random()
+		phi=u*math.pi*2
+		return phi
+
+	def sample_angle(self,m,n):	
+		u=random.random()
+		k=2*(n-m)-1
+		print "K+1",k+1
+		theta=math.acos((1-u)**(1.0/float(k+1)))	
+		return theta
 
 	def matrix_gen(self):
-		#do stuff
 		d=self.param.numneu
 		U=np.identity(d,complex)
-		for m in range(0,d-1):
-			for n in range(m+1,d):
+		m=0
+		while (m<=d-2):
+			n=m+1
+			while (n<=d-1):
 				print "M,N:",m,",",n
 				R=self.rotation_gen(m,n)
 				P=self.phase_gen(m,n)
 				U=np.dot(U,P)
 				U=np.dot(U,R)
-			
+				n+=1
+			m+=1	
 
 		return U
 	
