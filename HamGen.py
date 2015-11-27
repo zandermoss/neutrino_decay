@@ -19,7 +19,7 @@ class HamGen(object):
 		self.ugen=SU.SUGen(param)
 
 
-	def gen(self,eig_dcy,E):	
+	def gen(self,eig_dcy,E,matter):	
 		#Randomized self.parameters to generate conjugation matrices
 		#We will work in the flavor basis, so Um and Ug map from 
 		#the mass basis to the flavor basis and the decay basis 
@@ -39,24 +39,29 @@ class HamGen(object):
 		#Fill in mass and decay eigenvalues
 		Md=np.zeros([self.param.numneu,self.param.numneu],complex)
 		Gd=np.zeros([self.param.numneu,self.param.numneu],complex)
-		
+
+		#Add interaction term
+		Int=np.zeros([self.param.numneu,self.param.numneu],complex)
+		Int[0,0]=6.95e-11 #eV matter potential for a pure solid iron earth
+
+	
 		for i in range(0,self.param.numneu):
 		
-			Md[i,i]= self.param.dm2[1,i+1]/(2*E) #FIXME: mass constants-> Add in energy dependence!
-		    #Md[i,i]= 1 #FIXME: mass constants-> Add in energy dependence!
-			Gd[i,i]= eig_dcy[i]/E #FIXME
+			Md[i,i]= self.param.dm2[1,i+1]/(2*E)
+			Gd[i,i]= eig_dcy[i]/E #FIXME: precise form of energy dependence? 
 		
-		
-	
 	
 		M= np.dot(Um,np.dot(Md,Um.conj().T))
 		G= np.dot(Ug,np.dot(Gd,Ug.conj().T))
+
 	
 		#Assemble Hamiltonian
 		H=np.zeros([self.param.numneu,self.param.numneu],complex)
-		
-		H= M -1j*G
-		
+	
+		if matter:			
+			H= M -1j*G + Int	
+		else:
+			H= M -1j*G 
 		return H
 	
 

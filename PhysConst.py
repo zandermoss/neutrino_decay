@@ -13,7 +13,7 @@ Log :
 # python standard modules
 import numpy as np
 import random
-import math
+import cmath
 
 class PhysicsConstants(object):
 	
@@ -54,6 +54,9 @@ class PhysicsConstants(object):
 		self.sw_sq = 0.2312				  # [dimensionless] sin(th_weinberg) ^2
 		self.G  = 6.67300e-11				# [m^3 kg^-1 s^-2]
 		self.alpha = 1.0/137.0			   # [dimensionless] fine-structure constant 
+		self.hbar = 1.055e-34
+		self.sol = 2.998e8
+		
 		
 		#===============================================================================
 		# ## UNIT CONVERSION FACTORS
@@ -105,7 +108,7 @@ class PhysicsConstants(object):
 		# ## NEUTRINO OSCILLATION PARAMETERS ##
 		#===============================================================================
 		
-		self.numneu = 2					  # number of neutrinos
+		self.numneu = 3					  # number of neutrinos
 		self.numneumax = 6				   # maximum neutrino number
 		self.neutype = 'neutrino'
 		#neutype = 'antineutrino'
@@ -404,8 +407,8 @@ class PhysicsConstants(object):
 			for j in range(i+1,7):
 				rand=1-2*random.random()
 				self.c[i,j]=rand
-				self.s[i,j]=math.sqrt(1-rand**2)
+				self.s[i,j]=np.sqrt(1-rand**2)
 		rand=1-2*random.random()
 		self.dcps[1]=rand	
-		self.dcpc[1]=math.sqrt(1-rand**2)
+		self.dcpc[1]=np.sqrt(1-rand**2)
 	
