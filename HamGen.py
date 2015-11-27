@@ -6,6 +6,7 @@ from numpy import linalg as LA
 
 import PhysConst as PC
 import MinimalTools as MT
+import SUGen as SU
 import random
 import cmath
 import math
@@ -15,6 +16,7 @@ class HamGen(object):
 
 	def __init__(self,param):
 		self.param=param
+		self.ugen=SU.SUGen(param)
 
 
 	def gen(self,eig_dcy,E):	
@@ -22,14 +24,17 @@ class HamGen(object):
 		#We will work in the flavor basis, so Um and Ug map from 
 		#the mass basis to the flavor basis and the decay basis 
 		#to the flavor basis, respectively
-		Ugen=PC.PhysicsConstants()
+		#Ugen=PC.PhysicsConstants()
 		
 		#Generate conj matrices
 		#use known mixing self.parameters for M
 		Um=MT.calcU(self.param)
 		
-		Ugen.randomize_trig()
-		Ug=MT.calcU(Ugen)
+		self.ugen.sample_params()
+		Ug=self.ugen.matrix_gen()	
+		
+		#Ugen.randomize_trig()
+		#Ug=MT.calcU(Ugen)
 		
 		#Fill in mass and decay eigenvalues
 		Md=np.zeros([self.param.numneu,self.param.numneu],complex)
@@ -37,12 +42,13 @@ class HamGen(object):
 		
 		for i in range(0,self.param.numneu):
 		
-		    Md[i,i]= self.param.dm2[1,i+1]/(2*E) #FIXME: mass constants-> Add in energy dependence!
+			Md[i,i]= self.param.dm2[1,i+1]/(2*E) #FIXME: mass constants-> Add in energy dependence!
 		    #Md[i,i]= 1 #FIXME: mass constants-> Add in energy dependence!
-		    Gd[i,i]= eig_dcy[i]/E #FIXME
+			Gd[i,i]= eig_dcy[i]/E #FIXME
 		
 		
-		
+	
+	
 		M= np.dot(Um,np.dot(Md,Um.conj().T))
 		G= np.dot(Ug,np.dot(Gd,Ug.conj().T))
 	
