@@ -18,7 +18,7 @@ class DeSolve(object):
 		self.param=param
 
 		#Set up the solver
-		self.r=ode(func).set_integrator('zvode', method='bdf')
+		self.r=ode(self.func).set_integrator('zvode', method='bdf')
 
 		#Generate basis vectors
 		self.b=[]
@@ -26,16 +26,22 @@ class DeSolve(object):
 			self.b.append(np.zeros(param.numneu))
 			self.b[x][x]=1.0
 		#---------------------
+
+	#Time independent hamiltonian,
+	#define as matrix product for DE solver:
+	def func(self,t,y):
+		return -1j*np.dot(self.H,y)
+
 		
 	
 
-	def prop(dist,i,j):	
+	def prop(self,x,i,j):	
 		#Initial value: pure neutrino-0 state
 		y0=self.b[i]
 		x0=0
 	
-		xf=dist[-1]
-		step=dist[1]-dist[0]
+		xf=x[-1]
+		step=x[1]-x[0]
 
 	
 		self.r.set_initial_value(y0, x0)
@@ -44,15 +50,17 @@ class DeSolve(object):
 		dist=[]
 		output=[]
 		
-		while r.successful() and r.t < xf:
-			output.append(r.integrate(r.t+step))
-			dist.append(r.t)
+		output.append(y0)
+
+		while self.r.successful() and self.r.t < xf:
+			output.append(self.r.integrate(self.r.t+step))
+			dist.append(self.r.t)
 	
 		amp=np.zeros(len(output))
 
 
-		for x in range(0,len(output)):
-			ip=np.dot(self.b[j],output[x])	
-			amp[x]=np.absolute(ip)**2
+		for k in range(0,len(output)):
+			ip=np.dot(self.b[j],output[k])	
+			amp[k]=np.absolute(ip)**2
 	
 		return amp

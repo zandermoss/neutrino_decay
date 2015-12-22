@@ -26,8 +26,9 @@ hamgen=HamGen.HamGen(param)
 eig_dcy=np.zeros(param.numneu)
 
 osc_test=True
-matter=False
-#matter=True
+#osc_test=False
+#matter=False
+matter=True
 
 eig_dcy[0]=3.1989727405321533e-07
 eig_dcy[1]=9.283607843296119e-07
@@ -38,7 +39,8 @@ eig_dcy[2]=6.567215979512332e-07
 #	#eig_dcy[i]=0
 
 
-nruns=1000
+
+nruns=100
 
 for x in range(0,nruns):
 
@@ -47,18 +49,19 @@ for x in range(0,nruns):
 		print "Done: ",x+1,"/",nruns
 	
 
-	H=hamgen.gen(eig_dcy,param.MeV,matter)
+	H=hamgen.gen(eig_dcy,param.GeV,matter)
 	
-	#print "H:", H
 	
 	#asolve = ApproxSolve.ApproxSolve(H,param)
 	nsolve = NumSolve.NumSolve(H,param)
-	#desolve= DeSolve.DeSolve(H,param)
+	desolve= DeSolve.DeSolve(H,param)
 	
-	xdist=np.arange(0,1000)
+	#xdist=np.arange(0,param.EARTHRADIUS)
+	xdist=np.linspace(0,param.EARTHRADIUS,10000)
 	#xdist=np.divide(xdist,10.0)	
 	dist=xdist
 	dist=dist*1000 #km to m
+
 	
 	#we can just convert the distance to MKS, as it is the only
 	#parameter
@@ -77,22 +80,25 @@ for x in range(0,nruns):
 	#	a_amp[i] = asolve.P_ee(dist[i])
 		n_amp[i]= nsolve.scalar_prop(dist[i],0,0)
 	
-	
+	d_amp=desolve.prop(dist,0,0)
+	#print "RAW", len(d_amp)
+	#d_amp=d_amp[0:len(xdist)]
+
 	if osc_test:
 		fig, ax = plt.subplots()
+
 		ax.plot(xdist,n_amp,'r-',label='P(e->e): Diagonalized')
 		#ax.plot(xdist,a_amp,'b-',label='P(e->e): Approximate')
-		#ax.plot(xdist,d_amp,'g-',label='P(e->e): Numerical')
+		ax.plot(xdist,d_amp,'g--',label='P(e->e): Numerical')
 		
-		ax.set_xlabel("Distance (Meters)")
+		ax.set_xlabel("Distance (km)")
 		ax.set_ylabel("Oscillation Amplitude")
 		#ax.set_title("Evolution of 3 Flavors with a Random Hamiltonian")
 		#ax.set_title("Comparison of Numerical Evolution to AdG Approximation")
 		
-		plt.xlim([0,1000])
+		plt.xlim([0,param.EARTHRADIUS])
 		plt.show()
 		break		
-	#d_amp=desolve.prop(dist,0,0)
 
 	if x==0:
 		xrun=xdist
@@ -120,11 +126,11 @@ if (osc_test==False):
 	plt.pcolormesh(xedges,yedges,Hmasked)
 	plt.xlabel('x')
 	plt.ylabel('y')
-	plt.xlabel("Distance (Meters)")
+	plt.xlabel("Distance (km)")
 	plt.ylabel("Oscillation Amplitude")
 	cbar = plt.colorbar()
 	cbar.ax.set_ylabel('Counts') 
-	plt.xlim([0,100])
+	plt.xlim([0,param.EARTHRADIUS])
 	plt.show()
 	
 	

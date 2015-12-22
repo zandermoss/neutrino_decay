@@ -23,10 +23,8 @@ class SUGen(object):
 
 		m=1
 		while (m<=d-1):
-			print "M:",m
 			n=0
 			while (n<=m-1):
-				print "m,n:",m,",",n
 				self.lamb[m,n]=self.sample_phase()
 				self.lamb[n,m]=self.sample_angle(n,m)
 				n+=1
@@ -40,7 +38,6 @@ class SUGen(object):
 	def sample_angle(self,m,n):	
 		u=random.random()
 		k=2*(n-m)-1
-		print "K+1",k+1
 		theta=math.acos((1-u)**(1.0/float(k+1)))	
 		return theta
 
@@ -51,7 +48,6 @@ class SUGen(object):
 		while (m<=d-2):
 			n=m+1
 			while (n<=d-1):
-				print "M,N:",m,",",n
 				R=self.rotation_gen(m,n)
 				P=self.phase_gen(m,n)
 				U=np.dot(U,P)
