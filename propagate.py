@@ -1,5 +1,4 @@
 import numpy as np
-#OLIVE WUZ HERE
 import scipy as sp
 from scipy.integrate import ode
 import matplotlib.pyplot as plt
@@ -43,20 +42,21 @@ eig_dcy[2]=6.567215979512332e-07
 #Oscillation Channel:
 channel=[0,0]
 
+#ODE solve methods
+ode_methods=['BDF','Adams']
+
 
 H=hamgen.gen(eig_dcy,param.GeV,matter)
 
 
 #asolve = ApproxSolve.ApproxSolve(H,param)
-nsolve = NumSolve.NumSolve(H,param)
-desolve= DeSolve.DeSolve(H,param)
 
 dists=[]
 amps=[]
 deamps=[]
 
-for x in range(2,6):
-	res=10**x
+for pwr in range(4,7):
+	res=10**pwr
 	print res
 	
 	#xdist=np.arange(0,param.EARTHRADIUS)
@@ -64,8 +64,6 @@ for x in range(2,6):
 	#xdist=np.divide(xdist,10.0)	
 	dist=xdist
 	dist=dist*1000 #km to m
-	
-	
 	#we can just convert the distance to MKS, as it is the only
 	#parameter
 	
@@ -76,36 +74,42 @@ for x in range(2,6):
 	
 	#we should now be looking at effective propagation in meters
 	#print xdist
-	
-	a_amp=np.zeros(len(dist))
+
+	nsolve = NumSolve.NumSolve(H,param)
 	n_amp=np.zeros(len(dist))
 	for i in range(0,len(dist)):
 	#	a_amp[i] = asolve.P_ee(dist[i])
 		n_amp[i]= nsolve.scalar_prop(dist[i],channel[0],channel[1])
-		
-	d_amp=desolve.prop(dist,channel[0],channel[1])
-	print "RAW", len(d_amp)
-	d_amp=d_amp[0:len(xdist)]
-	
 	dists.append(xdist)
 	amps.append(n_amp)
-	deamps.append(d_amp)
+
+	for method in ode_methods:
+		
+		desolve= DeSolve.DeSolve(H,param,method)
+			
+		d_amp=desolve.prop(dist,channel[0],channel[1])
+		print "RAW", len(d_amp)
+		d_amp=d_amp[0:len(xdist)]
+		
+		deamps.append(d_amp)
 	
 
+plt.style.use('ggplot')
 
 fig, ax = plt.subplots()
 
-colors=['r-','g-','b-','m-']
-colordash=['r--','g--','b--','m--']
+colors=['r','g','b','m']
 
-dlab=[]
-delab=[]
-for x in range(0,4):
-	dlab.append('Diagonalized 10^'+str(x+2))
-	delab.append('Numerical 10^'+str(x+2))
-	ax.plot(dists[x],amps[x],colors[x],label=dlab[x])
-	#ax.plot(xdist,a_amp,'b-',label='P(e->e): Approximate')
-	ax.plot(dists[x],deamps[x],colordash[x],label=delab[x])
+linestyles=['-','--',':']
+index=0
+
+for pwr in range(0,3):
+	dlab=('Diagonalized: '+str(10**(pwr+4)))
+	ax.plot(dists[pwr],amps[pwr],colors[pwr]+linestyles[0],label=dlab)
+	for x in range(0,2):
+		delab=('Numerical Method: '+ode_methods[x])
+		ax.plot(dists[pwr],deamps[index],colors[pwr]+linestyles[x+1],label=delab)
+		index+=1
 	
 ax.set_xlabel("Distance (km)")
 ax.set_ylabel("Oscillation Amplitude")

@@ -13,13 +13,13 @@ import math
 
 class DeSolve(object):
 
-	def __init__(self,H,param):
+	def __init__(self,H,param,my_method):
 		self.H = H
 		self.param=param
 
 		#Set up the solver
-		self.r=ode(self.func).set_integrator('zvode', method='Adams')
-		print "Adams"
+		self.r=ode(self.func).set_integrator('zvode', method=my_method)
+		print my_method
 		#Generate basis vectors
 		self.b=[]
 		for x in range(0,param.numneu):
