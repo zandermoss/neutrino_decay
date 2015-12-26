@@ -27,8 +27,8 @@ eig_dcy=np.zeros(param.numneu)
 
 osc_test=True
 #osc_test=False
-matter=False
-#matter=True
+#matter=False
+matter=True
 
 eig_dcy[0]=3.1989727405321533e-07
 eig_dcy[1]=9.283607843296119e-07
@@ -77,9 +77,9 @@ for x in range(2,6):
 	n_amp=np.zeros(len(dist))
 	for i in range(0,len(dist)):
 	#	a_amp[i] = asolve.P_ee(dist[i])
-		n_amp[i]= nsolve.scalar_prop(dist[i],0,0)
+		n_amp[i]= nsolve.scalar_prop(dist[i],1,2)
 		
-	d_amp=desolve.prop(dist,0,0)
+	d_amp=desolve.prop(dist,1,2)
 	print "RAW", len(d_amp)
 	d_amp=d_amp[0:len(xdist)]
 	
