@@ -39,6 +39,9 @@ eig_dcy[2]=6.567215979512332e-07
 #	#eig_dcy[i]=0
 
 
+#Oscillation Channel:
+channel=[0,0]
+
 
 H=hamgen.gen(eig_dcy,param.GeV,matter)
 
@@ -77,9 +80,9 @@ for x in range(2,6):
 	n_amp=np.zeros(len(dist))
 	for i in range(0,len(dist)):
 	#	a_amp[i] = asolve.P_ee(dist[i])
-		n_amp[i]= nsolve.scalar_prop(dist[i],1,2)
+		n_amp[i]= nsolve.scalar_prop(dist[i],channel[0],channel[1])
 		
-	d_amp=desolve.prop(dist,1,2)
+	d_amp=desolve.prop(dist,channel[0],channel[1])
 	print "RAW", len(d_amp)
 	d_amp=d_amp[0:len(xdist)]
 	
