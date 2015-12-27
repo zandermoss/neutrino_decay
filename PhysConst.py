@@ -273,6 +273,13 @@ class PhysicsConstants(object):
 		
 		# MIXING MATRIX
 		self.U = None
+
+		#===============================================================================
+		# ## NEUTRINO DECAY PARAMETERS ##
+		#===============================================================================
+
+		#Select the exponent of the power-law energy dependence of decay:
+		self.decay_power = -1.0
 		
 		#===============================================================================
 		# # PARTICLE MASSES

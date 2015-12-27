@@ -48,7 +48,7 @@ class HamGen(object):
 		for i in range(0,self.param.numneu):
 		
 			Md[i,i]= self.param.dm2[1,i+1]/(2*E)
-			Gd[i,i]= eig_dcy[i]/E #FIXME: precise form of energy dependence? 
+			Gd[i,i]= eig_dcy[i]*(E**(self.param.decay_power)) #Power law energy dependence 
 		
 	
 		M= np.dot(Um,np.dot(Md,Um.conj().T))
