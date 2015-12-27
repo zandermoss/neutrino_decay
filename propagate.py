@@ -44,6 +44,7 @@ nruns=100
 
 for x in range(0,nruns):
 
+	res=10**4
 	#Progress display
 	if (x+1)%((nruns)/10)==0:
 		print "Done: ",x+1,"/",nruns
