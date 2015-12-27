@@ -27,8 +27,8 @@ eig_dcy=np.zeros(param.numneu)
 
 osc_test=True
 #osc_test=False
-#matter=False
-matter=True
+matter=False
+#matter=True
 
 eig_dcy[0]=3.1989727405321533e-07
 eig_dcy[1]=9.283607843296119e-07
@@ -57,7 +57,7 @@ for x in range(0,nruns):
 	desolve= DeSolve.DeSolve(H,param)
 	
 	#xdist=np.arange(0,param.EARTHRADIUS)
-	xdist=np.linspace(0,param.EARTHRADIUS,10000)
+	xdist=np.linspace(0,param.EARTHRADIUS,100000)
 	#xdist=np.divide(xdist,10.0)	
 	dist=xdist
 	dist=dist*1000 #km to m
@@ -82,7 +82,7 @@ for x in range(0,nruns):
 	
 	d_amp=desolve.prop(dist,0,0)
 	#print "RAW", len(d_amp)
-	#d_amp=d_amp[0:len(xdist)]
+	d_amp=d_amp[0:len(xdist)]
 
 	if osc_test:
 		fig, ax = plt.subplots()

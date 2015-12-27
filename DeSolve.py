@@ -18,7 +18,7 @@ class DeSolve(object):
 		self.param=param
 
 		#Set up the solver
-		self.r=ode(self.func).set_integrator('zvode', method='bdf')
+		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-12)
 
 		#Generate basis vectors
 		self.b=[]

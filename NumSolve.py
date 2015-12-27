@@ -37,5 +37,5 @@ class NumSolve(object):
 	
 		p=self.prop(l)
 		P=p*(p.conj())
-		amp=P[i,j].real
+		amp=P[j,i].real
 		return amp	
