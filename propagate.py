@@ -9,6 +9,7 @@ import MinimalTools as MT
 import random
 import cmath
 import math
+import time
 
 import ApproxSolve
 import NumSolve
@@ -55,40 +56,46 @@ dists=[]
 amps=[]
 deamps=[]
 
-for pwr in range(4,7):
-	res=10**pwr
-	print res
+res=10**4
 	
-	#xdist=np.arange(0,param.EARTHRADIUS)
-	xdist=np.linspace(0,param.EARTHRADIUS,res)
-	#xdist=np.divide(xdist,10.0)	
-	dist=xdist
-	dist=dist*1000 #km to m
-	#we can just convert the distance to MKS, as it is the only
-	#parameter
-	
-	dist=dist*1/(param.hbar*param.sol*param.Joule)
-	
-	#converting into time*MKS conversion factors, so we'll end up with:
-	#J*s/M*M*1/hbar in the exponent. Perfect!
-	
-	#we should now be looking at effective propagation in meters
-	#print xdist
+print "Resolution:",res
+#xdist=np.arange(0,param.EARTHRADIUS)
+xdist=np.linspace(0,param.EARTHRADIUS,res)
+#xdist=np.divide(xdist,10.0)	
+dist=xdist
+dist=dist*1000 #km to m
+#we can just convert the distance to MKS, as it is the only
+#parameter
 
-	nsolve = NumSolve.NumSolve(H,param)
-	n_amp=np.zeros(len(dist))
-	for i in range(0,len(dist)):
-	#	a_amp[i] = asolve.P_ee(dist[i])
-		n_amp[i]= nsolve.scalar_prop(dist[i],channel[0],channel[1])
-	dists.append(xdist)
-	amps.append(n_amp)
+dist=dist*1/(param.hbar*param.sol*param.Joule)
+
+#converting into time*MKS conversion factors, so we'll end up with:
+#J*s/M*M*1/hbar in the exponent. Perfect!
+
+#we should now be looking at effective propagation in meters
+#print xdist
+
+nsolve = NumSolve.NumSolve(H,param)
+n_amp=np.zeros(len(dist))
+for i in range(0,len(dist)):
+#	a_amp[i] = asolve.P_ee(dist[i])
+	n_amp[i]= nsolve.scalar_prop(dist[i],channel[0],channel[1])
+dists.append(xdist)
+amps.append(n_amp)
+
+for pwr in range(6,10):
+	tol=10**(-1.0*pwr)
+	print "Relative Tolerance:",tol
+	
 
 	for method in ode_methods:
 		
-		desolve= DeSolve.DeSolve(H,param,method)
-			
+		desolve= DeSolve.DeSolve(H,param,method,tol)
+		t0=time.clock()	
 		d_amp=desolve.prop(dist,channel[0],channel[1])
-		print "RAW", len(d_amp)
+		dt=time.clock()-t0
+		print "Proc Time:",dt
+		print
 		d_amp=d_amp[0:len(xdist)]
 		
 		deamps.append(d_amp)
@@ -103,12 +110,12 @@ colors=['r','g','b','m']
 linestyles=['-','--',':']
 index=0
 
-for pwr in range(0,3):
-	dlab=('Diagonalized: '+str(10**(pwr+4)))
-	ax.plot(dists[pwr],amps[pwr],colors[pwr]+linestyles[0],label=dlab)
+dlab=('Diagonalized')
+ax.plot(dists[0],amps[0],linestyles[0],label=dlab)
+for pwr in range(0,4):
 	for x in range(0,2):
-		delab=('Numerical Method: '+ode_methods[x])
-		ax.plot(dists[pwr],deamps[index],colors[pwr]+linestyles[x+1],label=delab)
+		delab=('Numerical Method: '+ode_methods[x]+" RTol:"+str(pwr+6))
+		ax.plot(dists[0],deamps[index],colors[pwr]+linestyles[x+1],label=delab)
 		index+=1
 	
 ax.set_xlabel("Distance (km)")
