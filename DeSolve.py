@@ -1,4 +1,5 @@
 import numpy as np
+
 import scipy as sp
 from scipy.integrate import ode
 import matplotlib.pyplot as plt
@@ -13,13 +14,14 @@ import math
 
 class DeSolve(object):
 
-	def __init__(self,H,param):
-		self.H = H
+	def __init__(self,myhamgen,param):
+		self.hamgen = myhamgen
 		self.param=param
 
 		#Set up the solver
-		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-12)
+		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-10)
 
+		self.norm=1.0
 		#Generate basis vectors
 		self.b=[]
 		for x in range(0,param.numneu):
@@ -30,13 +32,20 @@ class DeSolve(object):
 	#Time independent hamiltonian,
 	#define as matrix product for DE solver:
 	def func(self,t,y):
-		return -1j*np.dot(self.H,y)
+		print "INC", t/self.norm
+		#H=self.hamgen.update(t/self.norm)
+		H=self.hamgen.update(0.5)
+		print "VHAM",H
+		return -1j*np.dot(H,y)
 
 		
 	
 
 	def prop(self,x,i,j):	
 		#Initial value: pure neutrino-0 state
+
+		self.norm=x[-1]
+
 		y0=self.b[i]
 		x0=0
 	
@@ -55,6 +64,8 @@ class DeSolve(object):
 		while self.r.successful() and self.r.t < xf:
 			output.append(self.r.integrate(self.r.t+step))
 			dist.append(self.r.t)
+			print "T",self.r.t
+			print "XF",xf
 	
 		amp=np.zeros(len(output))
 

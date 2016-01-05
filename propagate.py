@@ -6,6 +6,8 @@ from numpy import linalg as LA
 
 import PhysConst as PC
 import MinimalTools as MT
+import EarthDensity as ED
+import SUGen as SU
 import random
 import cmath
 import math
@@ -20,29 +22,48 @@ param = PC.PhysicsConstants()
 
 param.numneu=3
 
-print "NUMNEU:",param.numneu
-hamgen=HamGen.HamGen(param)
+#Earth Density Spline
+edense=ED.EarthDensity()
+dspline=edense.EarthSpline()
 
 eig_dcy=np.zeros(param.numneu)
+dcy_ord=-19.0
 
-osc_test=True
-#osc_test=False
-#matter=False
-matter=True
-
-eig_dcy[0]=3.1989727405321533e-07
-eig_dcy[1]=9.283607843296119e-07
-eig_dcy[2]=6.567215979512332e-07
+eig_dcy[0]=3.1989727405321533*(10.0)**dcy_ord
+eig_dcy[1]=9.283607843296119*(10.0)**dcy_ord
+eig_dcy[2]=6.567215979512332*(10.0)**dcy_ord
 
 #for i in range(0,len(eig_dcy)):
 #	eig_dcy[i]=random.random()*1e-6
 #	#eig_dcy[i]=0
 
 
+print "NUMNEU:",param.numneu
+shamgen=HamGen.HamGen(param,eig_dcy,3.90863690777e-13)
+vhamgen=HamGen.HamGen(param,eig_dcy,dspline)
+
+
+osc_test=True
+#osc_test=False
+#matter=False
+#matter=True
+
+
+
+
+
+#Oscillation Channel
+channel=[1,1]
 
 nruns=100
 
 for x in range(0,nruns):
+
+	ugen=SU.SUGen(param)
+	ugen.sample_params()
+	Ug=ugen.matrix_gen()
+
+
 
 	res=10**4
 	#Progress display
@@ -50,12 +71,13 @@ for x in range(0,nruns):
 		print "Done: ",x+1,"/",nruns
 	
 
-	H=hamgen.gen(eig_dcy,param.GeV,matter)
+	Hs=shamgen.gen(param.TeV,Ug)
+	Hv=vhamgen.gen(param.TeV,Ug)
 	
 	
 	#asolve = ApproxSolve.ApproxSolve(H,param)
-	nsolve = NumSolve.NumSolve(H,param)
-	desolve= DeSolve.DeSolve(H,param)
+	nsolve = NumSolve.NumSolve(Hs,param)
+	desolve= DeSolve.DeSolve(vhamgen,param)
 	
 	#xdist=np.arange(0,param.EARTHRADIUS)
 	xdist=np.linspace(0,param.EARTHRADIUS,res)
@@ -79,11 +101,12 @@ for x in range(0,nruns):
 	n_amp=np.zeros(len(dist))
 	for i in range(0,len(dist)):
 	#	a_amp[i] = asolve.P_ee(dist[i])
-		n_amp[i]= nsolve.scalar_prop(dist[i],0,0)
+		n_amp[i]= nsolve.scalar_prop(dist[i],channel[0],channel[1])
 	
-	d_amp=desolve.prop(dist,0,0)
+	d_amp=desolve.prop(dist,channel[0],channel[1])
 	#print "RAW", len(d_amp)
 	#d_amp=d_amp[0:len(xdist)]
+	print "SHAM",Hs
 
 	if osc_test:
 		fig, ax = plt.subplots()

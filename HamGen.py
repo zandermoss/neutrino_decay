@@ -14,55 +14,104 @@ import math
 
 class HamGen(object):
 
-	def __init__(self,param):
+	def __init__(self,param,myeig_dcy=None,mydspline=None):
 		self.param=param
 		self.ugen=SU.SUGen(param)
+		self.dspline=mydspline
+		self.eig_dcy=myeig_dcy
+		self.H=np.zeros([self.param.numneu,self.param.numneu],complex)	
+		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
 
-
-	def gen(self,eig_dcy,E,matter):	
+	def gen(self,E,Ug):	
 		#Randomized self.parameters to generate conjugation matrices
 		#We will work in the flavor basis, so Um and Ug map from 
 		#the mass basis to the flavor basis and the decay basis 
 		#to the flavor basis, respectively
 		#Ugen=PC.PhysicsConstants()
+		self.H=np.zeros([self.param.numneu,self.param.numneu],complex)	
+		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
 		
+		#Check if matter effects or decay is present
+		if self.eig_dcy==None:
+			decay=False
+		else:
+			decay=True
+
+		if type(self.dspline)==float:
+			vmatter=False
+		else:
+			vmatter=True
+
+		if self.dspline==None:
+			matter=False
+		else:
+			matter=True
+
+
 		#Generate conj matrices
 		#use known mixing self.parameters for M
 		Um=MT.calcU(self.param)
-		
-		self.ugen.sample_params()
-		Ug=self.ugen.matrix_gen()	
+	
+		#if decay:	
+		#	self.ugen.sample_params()
+		#	Ug=self.ugen.matrix_gen()	
 		
 		#Ugen.randomize_trig()
 		#Ug=MT.calcU(Ugen)
 		
 		#Fill in mass and decay eigenvalues
 		Md=np.zeros([self.param.numneu,self.param.numneu],complex)
-		Gd=np.zeros([self.param.numneu,self.param.numneu],complex)
+		if decay:	
+			Gd=np.zeros([self.param.numneu,self.param.numneu],complex)
 
 		#Add interaction term
-		Int=np.zeros([self.param.numneu,self.param.numneu],complex)
-		Int[0,0]=6.95e-11 #eV matter potential for a pure solid iron earth
+		if (matter)&(vmatter==False):
+			potential=self.dspline 
+			#assume electron density is neutron density. This is roughly true.
+			for flv in range(0,3):
+				if flv==0:
+					self.Int[flv,flv]=potential/2
+				else:
+					self.Int[flv,flv]=-potential/2
 
-	
 		for i in range(0,self.param.numneu):
 		
 			Md[i,i]= self.param.dm2[1,i+1]/(2*E)
-			Gd[i,i]= eig_dcy[i]*(E**(self.param.decay_power)) #Power law energy dependence 
+			
+			if decay:	
+				Gd[i,i]= self.eig_dcy[i]*(E**(self.param.decay_power)) #Power law energy dependence 
 		
 	
 		M= np.dot(Um,np.dot(Md,Um.conj().T))
-		G= np.dot(Ug,np.dot(Gd,Ug.conj().T))
+		if decay:	
+			G= np.dot(Ug,np.dot(Gd,Ug.conj().T))
 
 	
 		#Assemble Hamiltonian
-		H=np.zeros([self.param.numneu,self.param.numneu],complex)
-	
+		self.H=M
+
+		if decay:
+			self.H += -1j*G 
+
 		if matter:			
-			H= M -1j*G + Int	
-		else:
-			H= M -1j*G 
-		return H
+			self.H += self.Int	
+		print "MATTER",self.Int
+
+		return self.H
 	
+	def update(self,x):
+		print "X",x
+		density=self.dspline(x) #g/cm^3
+		print "DENSE",density
+		nd=density*self.param.gr/(2*self.param.GeV*self.param.proton_mass) #convert to #proton/cm^3
+		potential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd #convert cm to 1/eV
+		print "POT",potential
 
+		for flv in range(0,3):
+			#assume electron density is neutron density. This is roughly true.
+			if flv==0:
+				self.Int[flv,flv]=potential/2
+			else:
+				self.Int[flv,flv]=-potential/2
 
+		return self.H+self.Int

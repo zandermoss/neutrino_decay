@@ -111,6 +111,7 @@ class PhysicsConstants(object):
 		self.numneu = 3					  # number of neutrinos
 		self.numneumax = 6				   # maximum neutrino number
 		self.neutype = 'neutrino'
+		self.Eprop= self.TeV
 		#neutype = 'antineutrino'
 		
 		# values updated according to 1209.3023 Table 1 FreeFluxes + RSBL
@@ -279,7 +280,7 @@ class PhysicsConstants(object):
 		#===============================================================================
 
 		#Select the exponent of the power-law energy dependence of decay:
-		self.decay_power = -1.0
+		self.decay_power = 0.0
 		
 		#===============================================================================
 		# # PARTICLE MASSES
