@@ -19,7 +19,6 @@ class DeSolve(object):
 		self.param=param
 
 		#Set up the solver
-		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-10)
 
 		self.norm=1.0
 		#Generate basis vectors
@@ -33,6 +32,8 @@ class DeSolve(object):
 	#define as matrix product for DE solver:
 	def func(self,t,y):
 		print "INC", t/self.norm
+		print "FT",t
+		print "FXT",self.norm
 		#H=self.hamgen.update(t/self.norm)
 		H=self.hamgen.update(0.5)
 		print "VHAM",H
@@ -43,6 +44,7 @@ class DeSolve(object):
 
 	def prop(self,x,i,j):	
 		#Initial value: pure neutrino-0 state
+		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-10)
 
 		self.norm=x[-1]
 
@@ -64,7 +66,8 @@ class DeSolve(object):
 		while self.r.successful() and self.r.t < xf:
 			output.append(self.r.integrate(self.r.t+step))
 			dist.append(self.r.t)
-			print "T",self.r.t
+			print "T",self.r.t+step
+			print "STEP",step
 			print "XF",xf
 	
 		amp=np.zeros(len(output))
