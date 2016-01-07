@@ -81,21 +81,8 @@ for x in range(0,nruns):
 	
 	#xdist=np.arange(0,param.EARTHRADIUS)
 	xdist=np.linspace(0,param.EARTHRADIUS,res)
-	#xdist=np.divide(xdist,10.0)	
-	dist=xdist
-	dist=dist*1000 #km to m
+	dist = xdist*param.km #km to eV	
 
-	
-	#we can just convert the distance to MKS, as it is the only
-	#parameter
-	
-	dist=dist*1/(param.hbar*param.sol*param.Joule)
-	
-	#converting into time*MKS conversion factors, so we'll end up with:
-	#J*s/M*M*1/hbar in the exponent. Perfect!
-	
-	#we should now be looking at effective propagation in meters
-	#print xdist
 	
 	a_amp=np.zeros(len(dist))
 	n_amp=np.zeros(len(dist))
@@ -104,8 +91,8 @@ for x in range(0,nruns):
 		n_amp[i]= nsolve.scalar_prop(dist[i],channel[0],channel[1])
 	
 	d_amp=desolve.prop(dist,channel[0],channel[1])
-	#print "RAW", len(d_amp)
-	#d_amp=d_amp[0:len(xdist)]
+	print "RAW", len(d_amp)
+	d_amp=d_amp[0:len(xdist)]
 	print "SHAM",Hs
 
 	if osc_test:

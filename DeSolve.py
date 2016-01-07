@@ -18,6 +18,10 @@ class DeSolve(object):
 		self.hamgen = myhamgen
 		self.param=param
 
+		self.falf=0.0
+		self.fstep=0.0
+
+
 		#Set up the solver
 
 		self.norm=1.0
@@ -31,12 +35,8 @@ class DeSolve(object):
 	#Time independent hamiltonian,
 	#define as matrix product for DE solver:
 	def func(self,t,y):
-		print "INC", t/self.norm
-		print "FT",t
-		print "FXT",self.norm
-		#H=self.hamgen.update(t/self.norm)
-		H=self.hamgen.update(0.5)
-		print "VHAM",H
+		H=self.hamgen.update(t/self.norm)
+		#H=self.hamgen.update(0.5)
 		return -1j*np.dot(H,y)
 
 		
@@ -63,12 +63,11 @@ class DeSolve(object):
 		
 		output.append(y0)
 
+		self.fstep=step
 		while self.r.successful() and self.r.t < xf:
 			output.append(self.r.integrate(self.r.t+step))
 			dist.append(self.r.t)
-			print "T",self.r.t+step
-			print "STEP",step
-			print "XF",xf
+			self.falf=self.r.t
 	
 		amp=np.zeros(len(output))
 

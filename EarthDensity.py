@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.ndimage.filters import gaussian_filter1d as gausfilt
-import EarthRadial as ER
 
 
 class EarthDensity():
@@ -12,9 +11,8 @@ class EarthDensity():
 
 
 	def __init__(self):
-		self.er=ER.EarthRadial()
-		self.nspl=10000 #Number of samples to take from ER
-		self.splinecount=1000 #Number of points in cubic spline. Restricted by time.
+		self.nspl=12000 #Number of samples to take from ER
+		self.splinecount=1200 #Number of points in cubic spline. Restricted by time.
 		self.EarthRadius = 6371.0	#[km]
 		self.Radius = 6371.0	#[km]
 
@@ -55,7 +53,7 @@ class EarthDensity():
 		Returns a cubic spline of gaussian-smoothed density profile.
 		"""
 
-		dist=np.linspace(0,1,self.nspl,endpoint=True) #Sampling range
+		dist=np.linspace(0,1.2,self.nspl,endpoint=True) #Sampling range
 
 		dense=np.zeros(len(dist)) #Sample from ER
 		for x in range(0,len(dist)):
@@ -67,7 +65,7 @@ class EarthDensity():
 
 
 		smalldense=np.zeros(self.splinecount) #Sampling range (reduced resolution by 10 fold)
-		smalldist=np.linspace(0,1,self.splinecount,endpoint=True)
+		smalldist=np.linspace(0,1.2,self.splinecount,endpoint=True)
 
 		for x in range(0,len(smalldist)): #Sampling
 			smalldense[x]=smoothfunc(smalldist[x])
