@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.ndimage.filters import gaussian_filter1d as gausfilt
+import dill as pickle
 
 
 class EarthDensity():
@@ -73,5 +74,10 @@ class EarthDensity():
 		func = interp1d(smalldist, smalldense, kind='cubic') #Finally, generate the spline and return.
 
 		return func
+
+
+dense=EarthDensity()
+earth_spline=dense.EarthSpline()
+pickle.dump( earth_spline, open( "earth_spline.p", "wb" ) )
 
 

@@ -14,10 +14,11 @@ import math
 
 class HamGen(object):
 
-	def __init__(self,param,myeig_dcy=None,mydspline=None):
+	def __init__(self,param,myeig_dcy=None,dspline=None,yespline=None):
 		self.param=param
 		self.ugen=SU.SUGen(param)
-		self.dspline=mydspline
+		self.dspline=dspline
+		self.yespline=yespline
 		self.eig_dcy=myeig_dcy
 		self.H=np.zeros([self.param.numneu,self.param.numneu],complex)	
 		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
@@ -77,7 +78,8 @@ class HamGen(object):
 		for i in range(0,self.param.numneu):
 		
 			Md[i,i]= self.param.dm2[1,i+1]/(2*E)
-			
+		
+			print "Md:", Md	
 			if decay:	
 				Gd[i,i]= self.eig_dcy[i]*(E**(self.param.decay_power)) #Power law energy dependence 
 		
@@ -95,23 +97,22 @@ class HamGen(object):
 
 		if matter:			
 			self.H += self.Int	
-		print "MATTER",self.Int
 
 		return self.H
 	
 	def update(self,x):
-		print "X",x
+		ye=self.yespline(x)
 		density=self.dspline(x) #g/cm^3
-		print "DENSE",density
-		nd=density*self.param.gr/(2*self.param.GeV*self.param.proton_mass) #convert to #proton/cm^3
-		potential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd #convert cm to 1/eV
-		print "POT",potential
+		nd=density*self.param.gr/(self.param.GeV*self.param.proton_mass) #convert to #proton/cm^3
+		npotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*(1-ye) #convert cm to 1/eV
+		ppotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*ye #convert cm to 1/eV
+
 
 		for flv in range(0,3):
 			#assume electron density is neutron density. This is roughly true.
 			if flv==0:
-				self.Int[flv,flv]=potential/2
+				self.Int[flv,flv]=ppotential-0.5*npotential
 			else:
-				self.Int[flv,flv]=-potential/2
+				self.Int[flv,flv]=-0.5*npotential
 
 		return self.H+self.Int

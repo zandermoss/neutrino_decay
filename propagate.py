@@ -6,7 +6,7 @@ from numpy import linalg as LA
 
 import PhysConst as PC
 import MinimalTools as MT
-import EarthDensity as ED
+import Splines  
 import SUGen as SU
 import random
 import cmath
@@ -22,12 +22,13 @@ param = PC.PhysicsConstants()
 
 param.numneu=3
 
-#Earth Density Spline
-edense=ED.EarthDensity()
-dspline=edense.EarthSpline()
+#Earth Density and Electron Fraction Splines
+spman = Splines.Spline()
+dspline=spman.GetEarth()
+yespline=spman.GetYe()
 
 eig_dcy=np.zeros(param.numneu)
-dcy_ord=-19.0
+dcy_ord=-18.0
 
 eig_dcy[0]=3.1989727405321533*(10.0)**dcy_ord
 eig_dcy[1]=9.283607843296119*(10.0)**dcy_ord
@@ -40,7 +41,7 @@ eig_dcy[2]=6.567215979512332*(10.0)**dcy_ord
 
 print "NUMNEU:",param.numneu
 shamgen=HamGen.HamGen(param,eig_dcy,3.90863690777e-13)
-vhamgen=HamGen.HamGen(param,eig_dcy,dspline)
+vhamgen=HamGen.HamGen(param,eig_dcy,dspline,yespline)
 
 
 osc_test=True
@@ -71,8 +72,8 @@ for x in range(0,nruns):
 		print "Done: ",x+1,"/",nruns
 	
 
-	Hs=shamgen.gen(param.TeV,Ug)
 	Hv=vhamgen.gen(param.TeV,Ug)
+	Hs=vhamgen.update(0.5)
 	
 	
 	#asolve = ApproxSolve.ApproxSolve(H,param)
@@ -98,15 +99,28 @@ for x in range(0,nruns):
 	if osc_test:
 		fig, ax = plt.subplots()
 
-		ax.plot(xdist,n_amp,'r-',label='P(e->e): Diagonalized')
+		ax.plot(xdist,n_amp,'r-',label='P(mu->mu): Diagonalized')
 		#ax.plot(xdist,a_amp,'b-',label='P(e->e): Approximate')
-		ax.plot(xdist,d_amp,'g--',label='P(e->e): Numerical')
+		ax.plot(xdist,d_amp,'g--',label='P(mu->mu): Numerical')
 		
 		ax.set_xlabel("Distance (km)")
 		ax.set_ylabel("Oscillation Amplitude")
-		#ax.set_title("Evolution of 3 Flavors with a Random Hamiltonian")
+		ax.set_title("Diagonal Method with Static Matter vs. Numerical with Full Matter.")
 		#ax.set_title("Comparison of Numerical Evolution to AdG Approximation")
 		
+
+		legend = plt.legend(loc='upper right', shadow=False, fontsize='x-large')
+
+		# Put a nicer background color on the legend.
+		#legend.get_frame().set_facecolor('#00FFCC')
+
+		#Look for max difference		
+		diff=np.absolute(n_amp-d_amp)
+		print
+		print "DIFF", np.max(diff)
+		print
+
+
 		plt.xlim([0,param.EARTHRADIUS])
 		plt.show()
 		break		
