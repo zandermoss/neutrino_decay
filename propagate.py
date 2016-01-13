@@ -8,6 +8,7 @@ import PhysConst as PC
 import MinimalTools as MT
 import Splines  
 import SUGen as SU
+import Track
 import random
 import cmath
 import math
@@ -23,9 +24,7 @@ param = PC.PhysicsConstants()
 param.numneu=3
 
 #Earth Density and Electron Fraction Splines
-spman = Splines.Spline()
-dspline=spman.GetEarth()
-yespline=spman.GetYe()
+splines = Splines.Spline()
 
 eig_dcy=np.zeros(param.numneu)
 dcy_ord=-18.0
@@ -40,68 +39,77 @@ eig_dcy[2]=6.567215979512332*(10.0)**dcy_ord
 
 
 print "NUMNEU:",param.numneu
-shamgen=HamGen.HamGen(param,eig_dcy,3.90863690777e-13)
-vhamgen=HamGen.HamGen(param,eig_dcy,dspline,yespline)
 
 
-osc_test=True
-#osc_test=False
+#osc_test=True
+osc_test=False
 #matter=False
 #matter=True
 
 
 
-
+resolution=10.0**5/param.EARTHRADIUS
 
 #Oscillation Channel
 channel=[1,1]
 
-nruns=100
+nruns=1000
+
+maxdiffs=np.zeros(nruns)
+thetas=np.zeros(nruns)
 
 for x in range(0,nruns):
+
 
 	ugen=SU.SUGen(param)
 	ugen.sample_params()
 	Ug=ugen.matrix_gen()
 
+	#track=Track.Track(param,resolution,param.TeV,False)
+	track=Track.Track(param,resolution,param.TeV,True)
+	thetas[x]=track.theta
 
+	#shamgen=HamGen.HamGen(param,track,eig_dcy,3.90863690777e-13)
+	vhamgen=HamGen.HamGen(param,Ug,track,eig_dcy,splines)
 
-	res=10**4
 	#Progress display
 	if (x+1)%((nruns)/10)==0:
 		print "Done: ",x+1,"/",nruns
 	
 
-	Hv=vhamgen.gen(param.TeV,Ug)
 	Hs=vhamgen.update(0.5)
-	
 	
 	#asolve = ApproxSolve.ApproxSolve(H,param)
 	nsolve = NumSolve.NumSolve(Hs,param)
 	desolve= DeSolve.DeSolve(vhamgen,param)
 	
-	#xdist=np.arange(0,param.EARTHRADIUS)
-	xdist=np.linspace(0,param.EARTHRADIUS,res)
-	dist = xdist*param.km #km to eV	
 
 	
-	a_amp=np.zeros(len(dist))
+
+	d_amp=desolve.prop(track,channel[0],channel[1])
+	print "NSTEPS: ", len(d_amp)
+
+
+	print "RAW", len(d_amp)
+	print "SHAM",Hs
+	dist=param.km*np.linspace(0,track.l,len(d_amp),endpoint=True)
 	n_amp=np.zeros(len(dist))
 	for i in range(0,len(dist)):
-	#	a_amp[i] = asolve.P_ee(dist[i])
 		n_amp[i]= nsolve.scalar_prop(dist[i],channel[0],channel[1])
-	
-	d_amp=desolve.prop(dist,channel[0],channel[1])
-	print "RAW", len(d_amp)
-	d_amp=d_amp[0:len(xdist)]
-	print "SHAM",Hs
+
+	diff=np.absolute(n_amp-d_amp)
+	maxdiffs[x]=np.max(diff)
+
 
 	if osc_test:
 		fig, ax = plt.subplots()
+		plotx=np.linspace(0,track.l,len(d_amp),endpoint=True)
 
-		ax.plot(xdist,n_amp,'r-',label='P(mu->mu): Diagonalized')
+		ax.plot(plotx,n_amp,'r-',label='P(mu->mu): Diagonalized')
 		#ax.plot(xdist,a_amp,'b-',label='P(e->e): Approximate')
-		ax.plot(xdist,d_amp,'g--',label='P(mu->mu): Numerical')
+		print "THETA", track.theta/3.1415
+		print "Length", track.l
+		ax.plot(plotx,d_amp,'g--',label='P(mu->mu): Numerical')
 		
 		ax.set_xlabel("Distance (km)")
 		ax.set_ylabel("Oscillation Amplitude")
@@ -116,23 +124,40 @@ for x in range(0,nruns):
 
 		#Look for max difference		
 		diff=np.absolute(n_amp-d_amp)
+		#plt.cla()
+		#ax.plot(plotx,diff,'r-',label='Diff')
 		print
 		print "DIFF", np.max(diff)
+		print "ARGDIFF", np.argmax(diff)
+		print "LENDIFF:", len(diff)
 		print
 
 
-		plt.xlim([0,param.EARTHRADIUS])
+		plt.xlim([0,track.l])
 		plt.show()
 		break		
 
-	if x==0:
-		xrun=xdist
-		yrun=n_amp
-	else:
-		xrun=np.concatenate((xrun,xdist))
-		yrun=np.concatenate((yrun,n_amp))
 
+np.save("hires_thetaout.npy",thetas)
+np.save("hires_diffsout.npy",maxdiffs)
+fig, ax = plt.subplots()
+ax.plot(thetas,maxdiffs,'o')
+ax.set_xlabel("theta (radians)")
+ax.set_ylabel("Maximum Probability Split")
+ax.set_title("Maximum Difference between Numerical and Diagonal Probabilities")
+plt.show()
 
+"""
+if x==0:
+	xrun=xdist
+	yrun=n_amp
+else:
+	xrun=np.concatenate((xrun,xdist))
+	yrun=np.concatenate((yrun,n_amp))
+
+"""
+
+"""
 if (osc_test==False):	
 	nbinsx = 1000
 	nbinsy = 100
@@ -158,4 +183,4 @@ if (osc_test==False):
 	plt.xlim([0,param.EARTHRADIUS])
 	plt.show()
 	
-	
+"""	

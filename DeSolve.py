@@ -18,13 +18,10 @@ class DeSolve(object):
 		self.hamgen = myhamgen
 		self.param=param
 
-		self.falf=0.0
-		self.fstep=0.0
-
-
 		#Set up the solver
+		self.norm=0
+		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-10)
 
-		self.norm=1.0
 		#Generate basis vectors
 		self.b=[]
 		for x in range(0,param.numneu):
@@ -42,17 +39,16 @@ class DeSolve(object):
 		
 	
 
-	def prop(self,x,i,j):	
+	def prop(self,track,i,j):	
 		#Initial value: pure neutrino-0 state
-		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-10)
 
-		self.norm=x[-1]
 
 		y0=self.b[i]
-		x0=0
+		x0=0.0
 	
-		xf=x[-1]
-		step=x[1]-x[0]
+		xf=self.param.km*track.l
+		self.norm=xf
+		step=self.param.km*track.step
 
 	
 		self.r.set_initial_value(y0, x0)
@@ -63,12 +59,12 @@ class DeSolve(object):
 		
 		output.append(y0)
 
-		self.fstep=step
-		while self.r.successful() and self.r.t < xf:
+
+
+		while self.r.successful() and self.r.t <= xf:
 			output.append(self.r.integrate(self.r.t+step))
 			dist.append(self.r.t)
-			self.falf=self.r.t
-	
+		
 		amp=np.zeros(len(output))
 
 

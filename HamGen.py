@@ -14,21 +14,18 @@ import math
 
 class HamGen(object):
 
-	def __init__(self,param,myeig_dcy=None,dspline=None,yespline=None):
+	def __init__(self,param,Ug,track,myeig_dcy=None,splines=None):
 		self.param=param
 		self.ugen=SU.SUGen(param)
-		self.dspline=dspline
-		self.yespline=yespline
 		self.eig_dcy=myeig_dcy
-		self.H=np.zeros([self.param.numneu,self.param.numneu],complex)	
-		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
+		self.splines=splines
 
-	def gen(self,E,Ug):	
 		#Randomized self.parameters to generate conjugation matrices
 		#We will work in the flavor basis, so Um and Ug map from 
 		#the mass basis to the flavor basis and the decay basis 
 		#to the flavor basis, respectively
 		#Ugen=PC.PhysicsConstants()
+		self.track=track
 		self.H=np.zeros([self.param.numneu,self.param.numneu],complex)	
 		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
 		
@@ -38,12 +35,15 @@ class HamGen(object):
 		else:
 			decay=True
 
-		if type(self.dspline)==float:
+		if type(self.splines)==float:
 			vmatter=False
 		else:
 			vmatter=True
+			self.yespline=splines.GetYe()
+			self.dspline=splines.GetEarth()
 
-		if self.dspline==None:
+
+		if self.splines==None:
 			matter=False
 		else:
 			matter=True
@@ -54,8 +54,8 @@ class HamGen(object):
 		Um=MT.calcU(self.param)
 	
 		#if decay:	
-		#	self.ugen.sample_params()
-		#	Ug=self.ugen.matrix_gen()	
+			#self.ugen.sample_params()
+			#Ug=self.ugen.matrix_gen()	
 		
 		#Ugen.randomize_trig()
 		#Ug=MT.calcU(Ugen)
@@ -67,7 +67,7 @@ class HamGen(object):
 
 		#Add interaction term
 		if (matter)&(vmatter==False):
-			potential=self.dspline 
+			potential=self.splines 
 			#assume electron density is neutron density. This is roughly true.
 			for flv in range(0,3):
 				if flv==0:
@@ -77,11 +77,11 @@ class HamGen(object):
 
 		for i in range(0,self.param.numneu):
 		
-			Md[i,i]= self.param.dm2[1,i+1]/(2*E)
+			Md[i,i]= self.param.dm2[1,i+1]/(2*self.track.E)
 		
 			print "Md:", Md	
 			if decay:	
-				Gd[i,i]= self.eig_dcy[i]*(E**(self.param.decay_power)) #Power law energy dependence 
+				Gd[i,i]= self.eig_dcy[i]*(self.track.E**(self.param.decay_power)) #Power law energy dependence 
 		
 	
 		M= np.dot(Um,np.dot(Md,Um.conj().T))
@@ -98,11 +98,11 @@ class HamGen(object):
 		if matter:			
 			self.H += self.Int	
 
-		return self.H
 	
 	def update(self,x):
-		ye=self.yespline(x)
-		density=self.dspline(x) #g/cm^3
+		r=self.track.r(x)
+		ye=self.yespline(r)
+		density=self.dspline(r) #g/cm^3
 		nd=density*self.param.gr/(self.param.GeV*self.param.proton_mass) #convert to #proton/cm^3
 		npotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*(1-ye) #convert cm to 1/eV
 		ppotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*ye #convert cm to 1/eV

@@ -22,10 +22,8 @@ class NumSolve(object):
 		self.Ht=np.zeros([param.numneu,param.numneu],complex)
 		self.Ni=np.linalg.inv(self.N)
 
-
 	
 	def prop(self,l):
-
 		for i in range(0,self.param.numneu):
 			self.Ht[i,i] = cmath.exp(-1j*self.w[i]*l)
 		
