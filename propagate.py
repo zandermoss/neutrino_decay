@@ -48,15 +48,19 @@ osc_test=False
 
 
 
-resolution=10.0**5/param.EARTHRADIUS
+resolution=10.0**4/param.EARTHRADIUS
 
 #Oscillation Channel
 channel=[1,1]
 
-nruns=1000
+nruns=100
 
 maxdiffs=np.zeros(nruns)
+argdiffs=np.zeros(nruns)
 thetas=np.zeros(nruns)
+
+loopth=np.linspace(0,3.141592,nruns)
+fname="data/run"
 
 for x in range(0,nruns):
 
@@ -65,11 +69,16 @@ for x in range(0,nruns):
 	ugen.sample_params()
 	Ug=ugen.matrix_gen()
 
-	#track=Track.Track(param,resolution,param.TeV,False)
-	track=Track.Track(param,resolution,param.TeV,True)
+	energy=0.01+random.random()*0.99
+
+	#track=Track.Track(param,resolution,energy*param.TeV,True)
+	track=Track.Track(param,resolution,param.TeV,False)
+	track.theta=loopth[x]
+	track.calc_l(track.theta)
 	thetas[x]=track.theta
 
 	#shamgen=HamGen.HamGen(param,track,eig_dcy,3.90863690777e-13)
+	shamgen=HamGen.HamGen(param,Ug,track,eig_dcy)
 	vhamgen=HamGen.HamGen(param,Ug,track,eig_dcy,splines)
 
 	#Progress display
@@ -77,35 +86,44 @@ for x in range(0,nruns):
 		print "Done: ",x+1,"/",nruns
 	
 
+	Hn=shamgen.H
 	Hs=vhamgen.update(0.5)
 	
 	#asolve = ApproxSolve.ApproxSolve(H,param)
 	nsolve = NumSolve.NumSolve(Hs,param)
+	nnsolve = NumSolve.NumSolve(Hn,param)
 	desolve= DeSolve.DeSolve(vhamgen,param)
 	
 
 	
 
 	d_amp=desolve.prop(track,channel[0],channel[1])
-	print "NSTEPS: ", len(d_amp)
+	#print "NSTEPS: ", len(d_amp)
 
 
-	print "RAW", len(d_amp)
-	print "SHAM",Hs
+	#print "RAW", len(d_amp)
+	#print "SHAM",Hs
+	xplot=np.linspace(0,track.l,len(d_amp),endpoint=True)
+	#print "LEN", track.l
 	dist=param.km*np.linspace(0,track.l,len(d_amp),endpoint=True)
 	n_amp=np.zeros(len(dist))
+	nn_amp=np.zeros(len(dist))
 	for i in range(0,len(dist)):
 		n_amp[i]= nsolve.scalar_prop(dist[i],channel[0],channel[1])
+		nn_amp[i]= nnsolve.scalar_prop(dist[i],channel[0],channel[1])
 
 	diff=np.absolute(n_amp-d_amp)
 	maxdiffs[x]=np.max(diff)
+	argdiffs[x]=np.argmax(diff)
 
+	#np.savez(fname+str(x),resolution=resolution,energy=energy,theta=track.theta,dist=xplot,numerical=d_amp,static=n_amp,vacuum=nn_amp)
 
 	if osc_test:
 		fig, ax = plt.subplots()
 		plotx=np.linspace(0,track.l,len(d_amp),endpoint=True)
 
 		ax.plot(plotx,n_amp,'r-',label='P(mu->mu): Diagonalized')
+		ax.plot(plotx,nn_amp,'b--',label='P(mu->mu): Diagonalized, nomatter')
 		#ax.plot(xdist,a_amp,'b-',label='P(e->e): Approximate')
 		print "THETA", track.theta/3.1415
 		print "Length", track.l
@@ -121,7 +139,7 @@ for x in range(0,nruns):
 
 		# Put a nicer background color on the legend.
 		#legend.get_frame().set_facecolor('#00FFCC')
-
+		'''
 		#Look for max difference		
 		diff=np.absolute(n_amp-d_amp)
 		#plt.cla()
@@ -131,15 +149,15 @@ for x in range(0,nruns):
 		print "ARGDIFF", np.argmax(diff)
 		print "LENDIFF:", len(diff)
 		print
-
+		'''
 
 		plt.xlim([0,track.l])
 		plt.show()
 		break		
 
 
-np.save("hires_thetaout.npy",thetas)
-np.save("hires_diffsout.npy",maxdiffs)
+np.save("linear_thetaout.npy",thetas)
+np.save("linear_diffsout.npy",maxdiffs)
 fig, ax = plt.subplots()
 ax.plot(thetas,maxdiffs,'o')
 ax.set_xlabel("theta (radians)")
