@@ -232,7 +232,8 @@ class PhysicsConstants(object):
 		self.delta3 = 0.0
 		
 		# d-CP phases
-		self.dcp = np.zeros([self.numneumax-2+1],complex)
+		#self.dcp = np.zeros([self.numneumax-2+1],complex)
+		self.dcp = np.zeros([self.numneumax-2+1],float)
 		self.dcp[0] = 0.0
 		self.dcp[1] = self.delta1
 		self.dcp[2] = self.delta2

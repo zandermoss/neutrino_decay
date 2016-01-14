@@ -58,12 +58,11 @@ class DeSolve(object):
 		output=[]
 		
 		output.append(y0)
+		output.append(self.r.integrate(xf))
 
-
-
-		while self.r.successful() and self.r.t <= xf:
-			output.append(self.r.integrate(self.r.t+step))
-			dist.append(self.r.t)
+#		while self.r.successful() and self.r.t <= xf:
+#			output.append(self.r.integrate(self.r.t+step))
+#			dist.append(self.r.t)
 		
 		amp=np.zeros(len(output))
 

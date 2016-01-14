@@ -79,7 +79,7 @@ class HamGen(object):
 		
 			Md[i,i]= self.param.dm2[1,i+1]/(2*self.track.E)
 		
-			print "Md:", Md	
+			#print "Md:", Md	
 			if decay:	
 				Gd[i,i]= self.eig_dcy[i]*(self.track.E**(self.param.decay_power)) #Power law energy dependence 
 		
