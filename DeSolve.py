@@ -20,7 +20,7 @@ class DeSolve(object):
 
 		#Set up the solver
 		self.norm=0
-		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-10)
+		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-8)
 
 		#Generate basis vectors
 		self.b=[]
