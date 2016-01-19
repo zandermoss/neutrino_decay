@@ -119,7 +119,8 @@ class PhysicsConstants(object):
 		# MIXING ANGLES
 	   
 		self.th12 = 0.579639
-		self.th13 = 0.150098
+		#self.th13 = 0.150098
+		self.th13 = 0.0
 		self.th23 = self.PIby2/2.0
 		self.th14 = 0.0
 		self.th24 = 0.0

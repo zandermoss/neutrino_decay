@@ -60,7 +60,7 @@ maxdiffs=np.zeros(nruns)
 argdiffs=np.zeros(nruns)
 thetas=np.zeros(nruns)
 
-loopth=np.linspace(0,3.141592,nruns)
+loopth=np.linspace(3.141592/2.0,3.141592,nruns)
 fname="data/run"
 
 for x in range(0,nruns):
