@@ -27,6 +27,7 @@ class HamGen(object):
 		#Ugen=PC.PhysicsConstants()
 		self.track=track
 		self.H=np.zeros([self.param.numneu,self.param.numneu],complex)	
+		self.H0=np.zeros([self.param.numneu,self.param.numneu],complex)	
 		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
 		
 		#Check if matter effects or decay is present
@@ -91,9 +92,11 @@ class HamGen(object):
 	
 		#Assemble Hamiltonian
 		self.H=M
+		self.H0=M
 
 		if decay:
 			self.H += -1j*G 
+			self.H0 += -1j*G 
 
 		if matter:			
 			self.H += self.Int	
