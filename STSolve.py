@@ -56,33 +56,18 @@ class STSolve(DeSolve.DeSolve):
 	
 		xf=self.param.km*track.l
 		self.norm=xf
-		step=self.param.km*track.step
 
 	
 		self.r.set_initial_value(y0, x0)
 		
-		#Solve!
-		dist=[]
-		output=[]
+
+		output=self.r.integrate(xf)
 		
-		output.append(y0)
 
 
-
-		while self.r.successful() and self.r.t <= xf:
-			output.append(self.r.integrate(self.r.t+step))
-			dist.append(self.r.t)
-		
-		amp=np.zeros(len(dist))
-
-
-		for k in range(0,len(dist)):
-			print "K:",k
-			print "dist:",len(dist)
-			print "output:",len(output)
-			sch_out=np.dot(LA.expm(-1.0j*dist[k]*self.H0),output[k])
-			ip=np.dot(self.b[j],sch_out)	
-			amp[k]=np.absolute(ip)**2
+		sch_out=np.dot(LA.expm(-1.0j*xf*self.H0),output)
+		ip=np.dot(self.b[j],sch_out)	
+		amp=np.absolute(ip)**2
 	
 		return amp
 

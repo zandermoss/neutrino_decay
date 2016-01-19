@@ -14,6 +14,15 @@ class Track():
 		self.resolution=resolution #steps/km
 		self.step=1.0/resolution
 		self.E=energy
+
+		self.intersections=[None,None]
+		self.shellradii=[0.1917,0.5462]
+		self.shellangles=np.zeros(2)
+		self.delta=0.009456
+
+
+		for rad in enumerate(self.shellradii):
+			self.shellangles[rad[0]]=2*math.asin(rad[1]/self.param.EARTHRADIUS)
 		if randz:
 			self.randomize_zenith()
 
@@ -36,7 +45,24 @@ class Track():
 		self.theta=math.acos(2*rand-1)
 		
 		self.calc_l(self.theta)
-	
+
+	def shell_intersection():
+		self.calc_l(self.theta)
+
+		for angle in enumerate(self.shellangles):
+			if self.theta<=angle[1]:
+				self.intersections[angle[0]]=True
+			else:
+				self.intersections[angle[0]]=False
+
+		R=self.param.EARTHRADIUS
+		s=np.zeros(2)
+		for j in range(0,2):
+			s[j]=R*math.cos(self.theta/2.0)-math.sqrt(r[j]**2-R**2*math.sin(self.theta/2.0)**2)
+		
+		return s
+				
+
 
 
 

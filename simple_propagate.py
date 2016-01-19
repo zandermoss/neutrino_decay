@@ -18,6 +18,7 @@ import NumSolve
 import DeSolve
 import HamGen
 
+import STSolve
 #Real parameters
 param = PC.PhysicsConstants()
 
@@ -50,7 +51,42 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 
     # prem solution
     desolve= DeSolve.DeSolve(vhamgen,param)
-    d_amp=desolve.prop(track,initial_flavor,final_flavor)
+    stsolve= STSolve.STSolve(vhamgen,param)
+    #d_amp=desolve.prop(track,initial_flavor,final_flavor)
+    st_amp=stsolve.prop(track,initial_flavor,final_flavor)
 
-    return d_amp[-1]
+    return st_amp
+
+
+def gridrun():
+
+	param=PC.PhysicsConstants()
+	print "SHEEP"
+	print param.GeV
+	print param.TeV
+	theta = np.linspace(0, 3.1415, 10)
+	energy = np.linspace(param.GeV, param.TeV, 10)
+	print energy
+	prob=np.zeros((10,10))
+	for e in enumerate(energy):
+		for t in enumerate(theta):
+			print e,t
+			print "OWL"
+			prob[e[0],t[0]]=AtmosphericNeutrinoOscillationProbability(1,1,e[1],t[1],param)
+			
+
+	print prob
+	E, T = np.meshgrid(energy, theta)
+
+
+	plt.figure()
+	CS = plt.contourf(E,T,prob,cmap=plt.cm.jet)
+	plt.clabel(CS, inline=1, fontsize=10)
+	cbar = plt.colorbar(CS)
+	plt.show()	
+
+
+
+
+
 

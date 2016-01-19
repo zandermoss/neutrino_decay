@@ -58,22 +58,38 @@ class DeSolve(object):
 	
 		self.r.set_initial_value(y0, x0)
 		
-		#Solve!
-		dist=[]
-		output=[]
-		
-		output.append(y0)
+
+		dists=track.shell_intersection()
+
+		if (track.intersections[0]==False)&(track.intersections[1]==False):
+			output=self.r.integrate(xf)
+		elif (track.intersections[0]==False)&(track.intersections[1]==True):
+			output=self.r.integrate(dists[1]-track.delta)	
+			self.r.set_initial_value(output,dists[1]+track.delta)
+			output=self.r.integrate(track.l-dists[1]-track.delta)
+			self.r.set_initial_value(output,dists[1]+track.delta)
+			output=self.r.integrate(xf)
+		elif (track.intersections[0]==True)&(track.intersections[1]==True):
+			output=self.r.integrate(dists[1]-track.delta)	
+			self.r.set_initial_value(output,dists[1]+track.delta)
+			output=self.r.integrate(dists[0]-track.delta)	
+			self.r.set_initial_value(output,dists[0]+track.delta)
+			output=self.r.integrate(track.l-dists[0]-track.delta)
+			self.r.set_initial_value(output,track.l-dists[0]+track.delta)
+			output=self.r.integrate(track.l-dists[1]-track.delta)
+			self.r.set_initial_value(output,dists[1]+track.delta)
+			output=self.r.integrate(xf)
+
+
 
 #		while self.r.successful() and self.r.t <= xf:
 #			output.append(self.r.integrate(self.r.t+step))
 #			dist.append(self.r.t)
 		
 	
-		amp=np.zeros(len(dist))
 
 
-		for k in range(0,len(dist)):
-			ip=np.dot(self.b[j],output[k])	
-			amp[k]=np.absolute(ip)**2
+		ip=np.dot(self.b[j],output)	
+		amp=np.absolute(ip)**2
 	
 		return amp
