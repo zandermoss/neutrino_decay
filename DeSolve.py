@@ -10,7 +10,7 @@ import MinimalTools as MT
 import random
 import cmath
 import math
-
+import Splines
 
 class DeSolve(object):
 
@@ -27,6 +27,9 @@ class DeSolve(object):
 		for x in range(0,param.numneu):
 			self.b.append(np.zeros(param.numneu))
 			self.b[x][x]=1.0
+
+		self.splines=Splines.Spline()
+
 		#---------------------
 
 	#Time independent hamiltonian,
@@ -60,25 +63,46 @@ class DeSolve(object):
 		
 
 		dists=track.shell_intersection()
-
+		dists=dists*self.param.EARTHRADIUS*self.param.km
+		tracklen=track.l*self.param.km
+		trackdel=2*track.delta*self.param.EARTHRADIUS*self.param.km
 		if (track.intersections[0]==False)&(track.intersections[1]==False):
 			output=self.r.integrate(xf)
 		elif (track.intersections[0]==False)&(track.intersections[1]==True):
-			output=self.r.integrate(dists[1]-track.delta)	
-			self.r.set_initial_value(output,dists[1]+track.delta)
-			output=self.r.integrate(track.l-dists[1]-track.delta)
-			self.r.set_initial_value(output,dists[1]+track.delta)
+			output=self.r.integrate(dists[1]-trackdel)	
+			self.r.set_initial_value(output,dists[1]+trackdel)
+			output=self.r.integrate(tracklen-dists[1]-trackdel)
+			self.r.set_initial_value(output,tracklen-dists[1]+trackdel)
 			output=self.r.integrate(xf)
 		elif (track.intersections[0]==True)&(track.intersections[1]==True):
-			output=self.r.integrate(dists[1]-track.delta)	
-			self.r.set_initial_value(output,dists[1]+track.delta)
-			output=self.r.integrate(dists[0]-track.delta)	
-			self.r.set_initial_value(output,dists[0]+track.delta)
-			output=self.r.integrate(track.l-dists[0]-track.delta)
-			self.r.set_initial_value(output,track.l-dists[0]+track.delta)
-			output=self.r.integrate(track.l-dists[1]-track.delta)
-			self.r.set_initial_value(output,dists[1]+track.delta)
+			output=self.r.integrate(dists[1]-trackdel)	
+			self.r.set_initial_value(output,dists[1]+trackdel)
+			output=self.r.integrate(dists[0]-trackdel)	
+			self.r.set_initial_value(output,dists[0]+trackdel)
+			output=self.r.integrate(tracklen-dists[0]-trackdel)
+			self.r.set_initial_value(output,tracklen-dists[0]+trackdel)
+			output=self.r.integrate(tracklen-dists[1]-trackdel)
+			self.r.set_initial_value(output,dists[1]+trackdel)
 			output=self.r.integrate(xf)
+
+			"""
+			print "THETA:",track.theta
+			print "Sprime:",tracklen/self.param.km-dists[1]/self.param.km
+			print "LEN:",tracklen/self.param.km
+			print "DIST1:",dists[1]/self.param.km
+			dspline=self.splines.GetEarth()
+			dspace=np.linspace((dists[1]-trackdel)/(self.param.EARTHRADIUS*self.param.km),(dists[1]+trackdel)/(self.param.EARTHRADIUS*self.param.km),100)
+			density=np.zeros(len(dspace))
+			for j in range(0,len(density)):
+				density[j]=dspline(track.r(dspace[j]))
+		
+			plt.plot(dspace,density)
+			plt.show()
+	
+
+			"""
+		else:
+			print "IMPOSSIBLE INTERSECTION PATTERN"
 
 
 

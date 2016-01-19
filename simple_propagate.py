@@ -52,10 +52,10 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
     # prem solution
     desolve= DeSolve.DeSolve(vhamgen,param)
     stsolve= STSolve.STSolve(vhamgen,param)
-    #d_amp=desolve.prop(track,initial_flavor,final_flavor)
-    st_amp=stsolve.prop(track,initial_flavor,final_flavor)
+    d_amp=desolve.prop(track,initial_flavor,final_flavor)
+    #st_amp=stsolve.prop(track,initial_flavor,final_flavor)
 
-    return st_amp
+    return d_amp
 
 
 def gridrun():
@@ -64,7 +64,7 @@ def gridrun():
 	print "SHEEP"
 	print param.GeV
 	print param.TeV
-	theta = np.linspace(0, 3.1415, 10)
+	theta = np.linspace(param.PI/2.0, param.PI, 10)
 	energy = np.linspace(param.GeV, param.TeV, 10)
 	print energy
 	prob=np.zeros((10,10))

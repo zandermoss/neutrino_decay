@@ -2,6 +2,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 from scipy.ndimage.filters import gaussian_filter1d as gausfilt
 import dill as pickle
+import matplotlib.pyplot as plt
 
 
 class EarthDensity():
@@ -76,8 +77,34 @@ class EarthDensity():
 		return func
 
 
+r1=0.191728143149
+r2=0.546225082405
+
+diff1=0.187
+
+delta=r1-diff1
+delta*=2
+print "D",delta
+diffdist=np.zeros(6)
+diffval=np.zeros(6)
+diffdist[0]=r1-delta
+diffdist[1]=r1+delta
+diffdist[2]=r2-delta
+diffdist[3]=r2+delta
+diffdist[4]=1.0-delta
+diffdist[5]=1.0+delta
+
+
 dense=EarthDensity()
 earth_spline=dense.EarthSpline()
-pickle.dump( earth_spline, open( "earth_spline.p", "wb" ) )
-
+for j in enumerate(diffdist):
+	diffval[j[0]]=earth_spline(j[1])
+dist=np.linspace(0,1.2,1000,endpoint=True) #Sampling range
+val=np.zeros(1000)
+for x in enumerate(dist):
+	val[x[0]]=earth_spline(x[1])
+plt.plot(dist,val)
+plt.plot(diffdist,diffval,'mo')
+#pickle.dump( earth_spline, open( "earth_spline.p", "wb" ) )
+plt.show()
 
