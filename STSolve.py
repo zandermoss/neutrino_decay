@@ -3,7 +3,7 @@ import numpy as np
 import scipy as sp
 from scipy.integrate import ode
 import matplotlib.pyplot as plt
-from numpy import linalg as LA
+from scipy import linalg as LA
 
 import PhysConst as PC
 import MinimalTools as MT
@@ -11,37 +11,39 @@ import random
 import cmath
 import math
 
+import DeSolve
 
-class DeSolve(object):
+class STSolve(DeSolve.DeSolve):
 
 	def __init__(self,myhamgen,param):
-		self.hamgen = myhamgen
-		self.param=param
 
-		#Set up the solver
-		self.norm=0
-		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-10)
-		#self.r=ode(self.func).set_integrator('dopri5',rtol=1e-10)
+		DeSolve.DeSolve.__init__(self,myhamgen,param)
 
-		#Generate basis vectors
-		self.b=[]
-		for x in range(0,param.numneu):
-			self.b.append(np.zeros(param.numneu))
-			self.b[x][x]=1.0
-		#---------------------
+		self.H0=self.hamgen.H0
+
 
 	#Time dependent hamiltonian,
 	#define as matrix product for DE solver:
 	def func(self,t,y):
-		H=self.hamgen.update(t/self.norm)
+		self.hamgen.update(t/self.norm)
+		Int=self.hamgen.Int
+		expm=LA.expm(1.0j*self.H0*t)
+		iexpm=LA.expm(-1.0j*self.H0*t)
+		H_I1=np.dot(expm,np.dot(Int,iexpm))
+		
 		#H=self.hamgen.update(0.5)
-		return -1j*np.dot(H,y)
+		return -1j*np.dot(H_I1,y)
 
 	def printfunc(self,t):
-		H=self.hamgen.update(t/self.norm)
+		print self.H0
+		self.hamgen.update(t/self.norm)
+		Int=self.hamgen.Int
+		expm=LA.expm(1.0j*self.H0*t)
+		iexpm=LA.expm(-1.0j*self.H0*t)
+		H_I1=np.dot(expm,np.dot(Int,iexpm))
+		
 		#H=self.hamgen.update(0.5)
-		print H
-		return H 
+		return H_I1 
 		
 	
 
@@ -70,16 +72,18 @@ class DeSolve(object):
 		while self.r.successful() and self.r.t <= xf:
 			output.append(self.r.integrate(self.r.t+step))
 			dist.append(self.r.t)
-			
 		
-	
 		amp=np.zeros(len(dist))
 
 
 		for k in range(0,len(dist)):
-			ip=np.dot(self.b[j],output[k])	
+			print "K:",k
+			print "dist:",len(dist)
+			print "output:",len(output)
+			sch_out=np.dot(LA.expm(-1.0j*dist[k]*self.H0),output[k])
+			ip=np.dot(self.b[j],sch_out)	
 			amp[k]=np.absolute(ip)**2
-
+	
 		return amp
 
 

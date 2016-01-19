@@ -17,6 +17,7 @@ import ApproxSolve
 import NumSolve
 import DeSolve
 import HamGen 
+import STSolve
 
 #Real parameters
 param = PC.PhysicsConstants()
@@ -72,7 +73,7 @@ for x in range(0,nruns):
 	energy=0.01+random.random()*0.99
 
 	#track=Track.Track(param,resolution,energy*param.TeV,True)
-	track=Track.Track(param,resolution,param.TeV,False)
+	track=Track.Track(param,resolution,20*param.GeV,False)
 	track.theta=loopth[x]
 	track.calc_l(track.theta)
 	thetas[x]=track.theta
@@ -93,12 +94,20 @@ for x in range(0,nruns):
 	nsolve = NumSolve.NumSolve(Hs,param)
 	nnsolve = NumSolve.NumSolve(Hn,param)
 	desolve= DeSolve.DeSolve(vhamgen,param)
+	stsolve= STSolve.STSolve(vhamgen,param)
 	
+
+
 
 	
 
 	d_amp=desolve.prop(track,channel[0],channel[1])
+	st_amp=stsolve.prop(track,channel[0],channel[1])
 	#print "NSTEPS: ", len(d_amp)
+
+
+	
+
 
 
 	#print "RAW", len(d_amp)
@@ -106,6 +115,32 @@ for x in range(0,nruns):
 	xplot=np.linspace(0,track.l,len(d_amp),endpoint=True)
 	#print "LEN", track.l
 	dist=param.km*np.linspace(0,track.l,len(d_amp),endpoint=True)
+
+	dfunc=np.zeros((len(dist),3,3),complex)
+	stfunc=np.zeros((len(dist),3,3),complex)
+	for x in range(0,len(dist)):
+		print "OWL"
+		dfunc[x]=desolve.printfunc(dist[x])
+		stfunc[x]=stsolve.printfunc(dist[x])
+
+
+	fig, ax = plt.subplots()
+	ax.plot(dist,np.absolute(dfunc[:,0,0]),'r-')
+	ax.plot(dist,np.absolute(stfunc[:,0,0]),'b-')
+	plt.show()
+	fig, ax = plt.subplots()
+	ax.plot(dist,np.absolute(dfunc[:,1,1]),'r-')
+	ax.plot(dist,np.absolute(stfunc[:,1,1]),'b-')
+	plt.show()
+	fig, ax = plt.subplots()
+	ax.plot(dist,np.absolute(dfunc[:,2,2]),'r-')
+	ax.plot(dist,np.absolute(stfunc[:,2,2]),'b-')
+	plt.show()
+
+	break
+
+
+
 	n_amp=np.zeros(len(dist))
 	nn_amp=np.zeros(len(dist))
 	for i in range(0,len(dist)):
@@ -128,6 +163,7 @@ for x in range(0,nruns):
 		print "THETA", track.theta/3.1415
 		print "Length", track.l
 		ax.plot(plotx,d_amp,'g--',label='P(mu->mu): Numerical')
+		ax.plot(plotx,st_amp,'m--',label='P(mu->mu): ST:Numerical')
 		
 		ax.set_xlabel("Distance (km)")
 		ax.set_ylabel("Oscillation Amplitude")
@@ -158,13 +194,13 @@ for x in range(0,nruns):
 """
 np.save("linear_thetaout.npy",thetas)
 np.save("linear_diffsout.npy",maxdiffs)
+"""
 fig, ax = plt.subplots()
 ax.plot(thetas,maxdiffs,'o')
 ax.set_xlabel("theta (radians)")
 ax.set_ylabel("Maximum Probability Split")
 ax.set_title("Maximum Difference between Numerical and Diagonal Probabilities")
 plt.show()
-"""
 """
 if x==0:
 	xrun=xdist

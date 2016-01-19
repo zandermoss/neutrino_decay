@@ -47,8 +47,8 @@ class HamGen(object):
 			matter=True
 			vmatter=True
 			self.yespline=splines.GetYe()
-			self.dspline=splines.GetEarthLine()
-			#self.dspline=splines.GetEarth()
+			#self.dspline=splines.GetEarthLine()
+			self.dspline=splines.GetEarth()
 
 
 		#Generate conj matrices
