@@ -21,6 +21,7 @@ class DeSolve(object):
 		#Set up the solver
 		self.norm=0
 		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-10)
+		#self.r=ode(self.func).set_integrator('dopri5',rtol=1e-10)
 
 		#Generate basis vectors
 		self.b=[]
@@ -64,14 +65,14 @@ class DeSolve(object):
 		while self.r.successful() and self.r.t <= xf:
 			output.append(self.r.integrate(self.r.t+step))
 			dist.append(self.r.t)
-		
+	
 		amp=np.zeros(len(output))
 
 
 		for k in range(0,len(output)):
 			ip=np.dot(self.b[j],output[k])	
 			amp[k]=np.absolute(ip)**2
-	
+
 		return amp
 
 

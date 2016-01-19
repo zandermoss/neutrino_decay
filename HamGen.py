@@ -36,18 +36,19 @@ class HamGen(object):
 		else:
 			decay=True
 
-		if type(self.splines)==float:
-			vmatter=False
-		else:
-			vmatter=True
-			self.yespline=splines.GetYe()
-			self.dspline=splines.GetEarth()
-
 
 		if self.splines==None:
 			matter=False
+			vmatter=False
+		elif type(self.splines)==float:
+			matter=True
+			vmatter=False
 		else:
 			matter=True
+			vmatter=True
+			self.yespline=splines.GetYe()
+			self.dspline=splines.GetEarthLine()
+			#self.dspline=splines.GetEarth()
 
 
 		#Generate conj matrices
@@ -80,7 +81,7 @@ class HamGen(object):
 		
 			Md[i,i]= self.param.dm2[1,i+1]/(2*self.track.E)
 		
-			print "Md:", Md	
+			#print "Md:", Md	
 			if decay:	
 				Gd[i,i]= self.eig_dcy[i]*(self.track.E**(self.param.decay_power)) #Power law energy dependence 
 		

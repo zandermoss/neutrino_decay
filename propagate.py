@@ -41,8 +41,8 @@ eig_dcy[2]=6.567215979512332*(10.0)**dcy_ord
 print "NUMNEU:",param.numneu
 
 
-#osc_test=True
-osc_test=False
+osc_test=True
+#osc_test=False
 #matter=False
 #matter=True
 
@@ -155,7 +155,7 @@ for x in range(0,nruns):
 		plt.show()
 		break		
 
-
+"""
 np.save("linear_thetaout.npy",thetas)
 np.save("linear_diffsout.npy",maxdiffs)
 fig, ax = plt.subplots()
@@ -164,7 +164,7 @@ ax.set_xlabel("theta (radians)")
 ax.set_ylabel("Maximum Probability Split")
 ax.set_title("Maximum Difference between Numerical and Diagonal Probabilities")
 plt.show()
-
+"""
 """
 if x==0:
 	xrun=xdist
