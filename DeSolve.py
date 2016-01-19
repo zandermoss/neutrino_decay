@@ -21,7 +21,6 @@ class DeSolve(object):
 		#Set up the solver
 		self.norm=0
 		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-10)
-		#self.r=ode(self.func).set_integrator('dopri5',rtol=1e-10)
 
 		#Generate basis vectors
 		self.b=[]
@@ -30,7 +29,7 @@ class DeSolve(object):
 			self.b[x][x]=1.0
 		#---------------------
 
-	#Time dependent hamiltonian,
+	#Time independent hamiltonian,
 	#define as matrix product for DE solver:
 	def func(self,t,y):
 		H=self.hamgen.update(t/self.norm)
@@ -65,12 +64,9 @@ class DeSolve(object):
 		
 		output.append(y0)
 
-
-
-		while self.r.successful() and self.r.t <= xf:
-			output.append(self.r.integrate(self.r.t+step))
-			dist.append(self.r.t)
-			
+#		while self.r.successful() and self.r.t <= xf:
+#			output.append(self.r.integrate(self.r.t+step))
+#			dist.append(self.r.t)
 		
 	
 		amp=np.zeros(len(dist))
@@ -79,7 +75,5 @@ class DeSolve(object):
 		for k in range(0,len(dist)):
 			ip=np.dot(self.b[j],output[k])	
 			amp[k]=np.absolute(ip)**2
-
+	
 		return amp
-
-
