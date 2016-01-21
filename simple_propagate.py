@@ -17,7 +17,7 @@ import ApproxSolve
 import NumSolve
 import DeSolve
 import HamGen
-
+import ShellSkipSolve
 import STSolve
 #Real parameters
 param = PC.PhysicsConstants()
@@ -39,23 +39,27 @@ resolution=10.0**4/param.EARTHRADIUS
 def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
                            energy,theta,param):
 
-    ugen=SU.SUGen(param)
-    ugen.sample_params()
-    Ug=ugen.matrix_gen()
+	ugen=SU.SUGen(param)
+	ugen.sample_params()
+	Ug=ugen.matrix_gen()
 
-    track=Track.Track(param,resolution,energy,False)
-    track.theta=theta
-    track.calc_l(track.theta)
+	track=Track.Track(param,resolution,energy,False)
+	track.theta=theta
+	track.calc_l(track.theta)
 
-    vhamgen=HamGen.HamGen(param,Ug,track,eig_dcy,splines)
+	vhamgen=HamGen.HamGen(param,Ug,track,None,splines)
 
-    # prem solution
-    desolve= DeSolve.DeSolve(vhamgen,param)
-    stsolve= STSolve.STSolve(vhamgen,param)
-    #d_amp=desolve.prop(track,initial_flavor,final_flavor)
-    st_amp=stsolve.prop(track,initial_flavor,final_flavor)
+	# prem solution
+	desolve= DeSolve.DeSolve(vhamgen,param)
+	#stsolve= STSolve.STSolve(vhamgen,param)
+	#sssolve= ShellSkipSolve.ShellSkipSolve(vhamgen,param)
+	#d_amp=sssolve.prop(track,initial_flavor,final_flavor)
+	d_amp=desolve.prop(track,initial_flavor,final_flavor)
+	#st_amp=stsolve.prop(track,initial_flavor,final_flavor)
 
-    return st_amp
+	#print track.l*param.km
+
+	return d_amp
 
 
 def gridrun():
@@ -64,8 +68,9 @@ def gridrun():
 	print "SHEEP"
 	print param.GeV
 	print param.TeV
-	theta = np.linspace(0, 3.1415, 10)
-	energy = np.linspace(param.GeV, param.TeV, 10)
+	theta = np.linspace(param.PI/2.0, param.PI, 10)
+	energy = np.logspace(9, 12, 10)
+	print theta
 	print energy
 	prob=np.zeros((10,10))
 	for e in enumerate(energy):

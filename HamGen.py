@@ -110,7 +110,7 @@ class HamGen(object):
 		nd=density*self.param.gr/(self.param.GeV*self.param.proton_mass) #convert to #proton/cm^3
 		npotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*(1-ye) #convert cm to 1/eV
 		ppotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*ye #convert cm to 1/eV
-
+		#print x*self.track.l*self.param.km, ",",ppotential
 
 		for flv in range(0,3):
 			#assume electron density is neutron density. This is roughly true.
