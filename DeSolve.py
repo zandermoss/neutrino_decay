@@ -2,8 +2,12 @@ import numpy as np
 
 import scipy as sp
 from scipy.integrate import ode
+from scipy.integrate import complex_ode
+from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
+
+
 
 import PhysConst as PC
 import MinimalTools as MT
@@ -20,8 +24,10 @@ class DeSolve(object):
 
 		#Set up the solver
 		self.norm=0
-		self.r=ode(self.func).set_integrator('zvode', method='adams',rtol=1e-7,order=12)
-		#self.r=ode(self.func).set_integrator('dopri5')
+		#self.r=ode(self.func).set_integrator('zvode', method='bdf',rtol=1e-6)
+		#self.r=complex_ode(self.func).set_integrator('dopri5',rtol=1e-6)
+		self.r=complex_ode(self.func).set_integrator('dopri5',rtol=1e-6,nsteps=100000)
+
 
 		#Generate basis vectors
 		self.b=[]
@@ -57,17 +63,18 @@ class DeSolve(object):
 		y0=self.b[i]
 		x0=0.0
 	
+
 		xf=self.param.km*track.l
 		#print "BASELINE:", self.param.km*track.l
 		self.norm=xf
 		step=self.param.km*track.step
 
-	
 		self.r.set_initial_value(y0, x0)
 	
 		output=self.r.integrate(xf)
+
+		return output
+		#ip=np.dot(self.b[j],output)	
+		#amp=np.absolute(ip)**2
 	
-		ip=np.dot(self.b[j],output)	
-		amp=np.absolute(ip)**2
-	
-		return amp
+		#return amp

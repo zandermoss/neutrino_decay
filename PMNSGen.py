@@ -29,36 +29,35 @@ class PMNSGen(SUGen.SUGen):
 		while (m<=d-2):
 			n=m+1
 			while (n<=d-1):
-				print "M,N:",m,n
-				if ([m,n] in pmns_pairs):
-					R=self.pmnsr_gen(m,n,self.thetas[pmns_pairs.index([m,n])])
-				else:
-					R=self.rotation_gen(m,n)
+				R=self.rotation_gen(m,n)
 				#P=self.phase_gen(m,n) no cp
 				#U=np.dot(U,P)
 				U=np.dot(U,R)
 				n+=1
 			m+=1	
+	
+		if (self.param.neutype=='antineutrino'):
+			return U.T
 
-		return U.conj().T
+		else:
+			
+			return U.conj().T
 
-	def pmnsr_gen(self,m,n,angle):
-		"""
-		Here, we generate the rotation-type matrices used
-		to construct the matrix element of SU(N). This is 
-		simply modifying the identity with sin and cos in 
-		the appropriate positions.
-		"""
-		print m,n,"ANGLE:",angle	
 
-		R=np.identity(self.param.numneu,complex)
-		lcos=cmath.cos(angle)
-		lsin=cmath.sin(-1.0*angle)
+	def sample_params(self):
+		d=self.param.numneu
+		pmns_pairs=[[0,1],[0,2],[1,2]]
 
-		R[m,m]=lcos
-		R[n,n]=lcos
-		R[n,m]=(-1.0)*lsin
-		R[m,n]=lsin
-		
-		return R
+		m=1
+		while (m<=d-1):
+			n=0
+			while (n<=m-1):
+				if ([n,m] in pmns_pairs):
+					self.lamb[n,m]=-1.0*self.thetas[pmns_pairs.index([n,m])]
+				else:
+					self.lamb[n,m]=-1.0*self.sample_angle(n,m)
+				self.lamb[m,n]=self.sample_phase()
+
+				n+=1
+			m+=1
 

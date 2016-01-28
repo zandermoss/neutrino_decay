@@ -77,7 +77,7 @@ class PhysicsConstants(object):
 		self.year = 365.0*self.day		   # [eV^-1/yr]
 		self.yearstosec = self.sec/self.year # [s/yr]
 		# Distance
-		self.meter = 5.076e6				 # [eV^-1/m]
+		self.meter = 5.06773093741e6				 # [eV^-1/m]
 		self.cm = 1.0e-2*self.meter		  # [eV^-1/cm]
 		self.km = 1.0e3*self.meter		   # [eV^-1/km]
 		self.fermi = 1.0e-15*self.meter	  # [eV^-1/fm]
@@ -108,8 +108,9 @@ class PhysicsConstants(object):
 		# ## NEUTRINO OSCILLATION PARAMETERS ##
 		#===============================================================================
 		
-		self.numneu = 3					  # number of neutrinos
+		self.numneu = 4				  # number of neutrinos
 		self.numneumax = 6				   # maximum neutrino number
+		#self.neutype = 'neutrino'
 		self.neutype = 'neutrino'
 		self.Eprop= self.TeV
 		#neutype = 'antineutrino'
@@ -118,10 +119,14 @@ class PhysicsConstants(object):
 		
 		# MIXING ANGLES
 	   
-		self.th12 = 0.579639
-		#self.th13 = 0.150098
-		self.th13 = 0.0
-		self.th23 = self.PIby2/2.0
+		#self.th12 = 0.579639
+		self.th12 = 0.563942
+		self.th13 = 0.154085
+		#self.th13 = self.PI/2.0
+		#self.th13 = 30*self.PI/180.0
+		#self.th13 = 0.0
+		#self.th23 = self.PIby2/2.0
+		self.th23 = 0.785398
 		self.th14 = 0.0
 		self.th24 = 0.0
 		self.th34 = 0.0
@@ -227,7 +232,8 @@ class PhysicsConstants(object):
 		#self.deltaCP=self.PIby2
 		
 		# CP Phases
-		self.deltaCP = 5.235987
+		self.deltaCP = 0.0
+		#self.deltaCP = 5.235987
 		self.delta1 = self.deltaCP
 		self.delta2 = 0.0
 		self.delta3 = 0.0
@@ -251,11 +257,13 @@ class PhysicsConstants(object):
 
 		
 		# SQUARED MASS DIFFERENCE
-		self.dm21sq = 7.50e-5				 # [eV^2]
+		#self.dm21sq = 7.50e-5				 # [eV^2]
+		self.dm21sq = 7.65e-5				 # [eV^2]
+		#self.dm31sq = 2.47e-3				 # [eV^2]
 		self.dm31sq = 2.47e-3				 # [eV^2]
 		self.dm32sq = -2.43e-3			   # [eV^2]
 		# STERILE 
-		self.dm41sq = 0.0					# [eV^2]
+		self.dm41sq = 1.0					# [eV^2]
 		self.dm51sq = 0.0					# [eV^2]
 		self.dm61sq = 0.0					# [eV^2]
 		# SQUARED MASS DIFFERENCE MATRIX

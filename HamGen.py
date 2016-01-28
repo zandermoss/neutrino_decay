@@ -14,11 +14,12 @@ import math
 
 class HamGen(object):
 
-	def __init__(self,param,Ug,track,myeig_dcy=None,splines=None):
+	def __init__(self,param,Um,Ug,track,myeig_dcy=None,splines=None):
 		self.param=param
 		self.ugen=SU.SUGen(param)
 		self.eig_dcy=myeig_dcy
 		self.splines=splines
+		self.doupdate=False
 
 		#Randomized self.parameters to generate conjugation matrices
 		#We will work in the flavor basis, so Um and Ug map from 
@@ -40,10 +41,13 @@ class HamGen(object):
 		if self.splines==None:
 			matter=False
 			vmatter=False
+			self.doupdate=False
 		elif type(self.splines)==float:
 			matter=True
 			vmatter=False
+			self.doupdate=False
 		else:
+			self.doupdate=True
 			matter=True
 			vmatter=True
 			self.yespline=splines.GetYe()
@@ -53,7 +57,7 @@ class HamGen(object):
 
 		#Generate conj matrices
 		#use known mixing self.parameters for M
-		Um=MT.calcU(self.param)
+		#Um=MT.calcU(self.param)
 	
 		#if decay:	
 			#self.ugen.sample_params()
@@ -89,8 +93,14 @@ class HamGen(object):
 		M= np.dot(Um,np.dot(Md,Um.conj().T))
 		if decay:	
 			G= np.dot(Ug,np.dot(Gd,Ug.conj().T))
-
-	
+		"""
+		print "GAMMA MATRIX:"
+		print
+		for i in range(0,4):
+			for j in range(0,4):
+				print i,j,":  ",G[i,j]
+		#print G
+		"""
 		#Assemble Hamiltonian
 		self.H=M
 		self.H0=M
@@ -104,19 +114,26 @@ class HamGen(object):
 
 	
 	def update(self,x):
-		r=self.track.r(x)
-		ye=self.yespline(r)
-		density=self.dspline(r) #g/cm^3
-		nd=density*self.param.gr/(self.param.GeV*self.param.proton_mass) #convert to #proton/cm^3
-		npotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*(1-ye) #convert cm to 1/eV
-		ppotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*ye #convert cm to 1/eV
-		#print x*self.track.l*self.param.km, ",",ppotential
+		if self.doupdate==True:
+			r=self.track.r(x)
+			ye=self.yespline(r)
+			density=self.dspline(r) #g/cm^3
+			nd=density*self.param.gr/(self.param.GeV*self.param.proton_mass) #convert to #proton/cm^3
+			npotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*(1-ye) #convert cm to 1/eV
+			ppotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*ye #convert cm to 1/eV
+			#print x*self.track.l*self.param.km, ",",ppotential
+	
+			for flv in range(0,3):
+				#assume electron density is neutron density. This is roughly true.
+				if flv==0:
+					self.Int[flv,flv]=ppotential-0.5*npotential
+				else:
+					self.Int[flv,flv]=-0.5*npotential
+		
+			if (self.param.neutype=='antineutrino'):
+				return self.H+self.Int*-1.0
 
-		for flv in range(0,3):
-			#assume electron density is neutron density. This is roughly true.
-			if flv==0:
-				self.Int[flv,flv]=ppotential-0.5*npotential
 			else:
-				self.Int[flv,flv]=-0.5*npotential
-
-		return self.H+self.Int
+				return self.H+self.Int
+		else:
+			return self.H
