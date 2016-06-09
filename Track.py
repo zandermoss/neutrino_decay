@@ -15,7 +15,7 @@ class Track():
 		self.step=1.0/resolution
 		self.E=energy
 
-		self.intersections=[False,False]
+		self.intersections=[None,None]
 		self.shellradii=[0.1917,0.5462]
 		self.shellangles=np.zeros(2)
 		self.delta=0.009456
@@ -58,8 +58,9 @@ class Track():
 		R=self.param.EARTHRADIUS
 		s=np.zeros(2)
 		for j in range(0,2):
-			if self.intersections[j]==True:
-				s[j]=math.cos(self.param.PI-self.theta)-math.sqrt(self.shellradii[j]**2-math.sin(self.param.PI-self.theta)**2)
+			if self.intersections[j]==True: 
+				s[j]=R*math.cos(self.param.PI-self.theta)-math.sqrt(R**2*self.shellradii[j]**2-R**2*math.sin(self.param.PI-self.theta)**2)
+				s[j]/=self.l
 		
 		return s
 				

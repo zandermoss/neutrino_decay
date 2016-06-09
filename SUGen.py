@@ -55,8 +55,11 @@ class SUGen(object):
 				n+=1
 			m+=1	
 
-		return U
-	
+		if (self.param.neutype=='antineutrino'):
+			return U.conj()
+		else:
+			return U
+
 	def rotation_gen(self,m,n):
 		"""
 		Here, we generate the rotation-type matrices used
@@ -71,8 +74,8 @@ class SUGen(object):
 
 		R[m,m]=lcos
 		R[n,n]=lcos
-		R[m,n]=(-1.0)*lsin
-		R[n,m]=lsin
+		R[n,m]=(-1.0)*lsin
+		R[m,n]=lsin
 
 		return R
 

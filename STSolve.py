@@ -61,14 +61,23 @@ class STSolve(DeSolve.DeSolve):
 		self.r.set_initial_value(y0, x0)
 		
 
-		output=self.r.integrate(xf)
+		#output=self.r.integrate(xf)
 		
+		dist=[]
+		output=[]
 
-
-		sch_out=np.dot(LA.expm(-1.0j*xf*self.H0),output)
-		ip=np.dot(self.b[j],sch_out)	
-		amp=np.absolute(ip)**2
+		while self.r.successful() and self.r.t <= xf:
+			output.append(self.r.integrate(self.r.t+step))
+			dist.append(self.r.t)
 	
+		amp=np.zeros(len(output))
+
+
+		for k in range(0,len(output)):
+			sch_out=np.dot(LA.expm(-1.0j*xf*self.H0),output[k])
+			ip=np.dot(self.b[j],sch_out)	
+			amp=np.absolute(ip)**2
+
 		return amp
 
 
