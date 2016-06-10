@@ -42,8 +42,8 @@ class DeSolve(object):
 	#Time independent hamiltonian,
 	#define as matrix product for DE solver:
 	def func(self,t,y):
-		#H=self.hamgen.update(t/self.norm)
-		H=self.hamgen.update(0.5)
+		H=self.hamgen.update(t/self.norm)
+		#H=self.hamgen.update(0.5)
 		#H=self.hamgen.H
 
 		return -1j*np.dot(H,y)
@@ -70,6 +70,14 @@ class DeSolve(object):
 		step=self.param.km*track.step
 
 		self.r.set_initial_value(y0, x0)
+		output=self.r.integrate(xf)
+
+		ip=np.dot(self.b[j],output)	
+		amp=np.absolute(ip)**2
+	
+		return amp
+
+		"""
 		outarr = []
 		distarr=[]
 		while self.r.successful() and self.r.t < xf:
@@ -79,11 +87,6 @@ class DeSolve(object):
 
 		np_out=np.asarray(outarr)
 		np_dist=np.asarray(distarr)
-	
-		#output=self.r.integrate(xf)
-
 		return np_dist,np_out
-		#ip=np.dot(self.b[j],output)	
-		#amp=np.absolute(ip)**2
-	
-		#return amp
+		"""
+

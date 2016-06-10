@@ -15,11 +15,8 @@ import cmath
 import math
 
 import ApproxSolve
-import NumSolve
 import DeSolve
 import HamGen
-import ShellSkipSolve
-import STSolve
 import PMNSGen
 import SUGen
 
@@ -85,36 +82,19 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	track.calc_l(track.theta)
 
 
-#	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,splines)
+	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,splines)
 #	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,splines)
-#	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,splines)
-	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,None)
+#	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,None)
 	#vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,None)
 
-	# prem solution
+	#prem solution
+
 	desolve= DeSolve.DeSolve(vhamgen,myparam)
-	#stsolve= STSolve.STSolve(vhamgen,myparam)
-	#sssolve= ShellSkipSolve.ShellSkipSolve(vhamgen,myparam)
-	#d_amp=sssolve.prop(track,initial_flavor,final_flavor)
-	dvec,pvec=desolve.prop(track,initial_flavor,final_flavor)
-	#st_amp=stsolve.prop(track,initial_flavor,final_flavor)
-	#print dvec,pvec
 
-	##return [0,0]
-	#print track.l*myparam.km
-	b=[]
-	for x in range(0,myparam.numneu):
-		b.append(np.zeros(myparam.numneu))
-		b[x][x]=1.0
+	amp=desolve.prop(track,initial_flavor,final_flavor)
 
-	amps=np.zeros([len(dvec),4])
-	for x in range(0,len(dvec)):
-		for bv in enumerate(b):
-			ip=np.dot(bv[1],pvec[x])	
-			amps[x,bv[0]]=np.absolute(ip)**2
+	return amp 
 
-
-	return dvec,amps
 def gridrun():
 
 	param=PC.PhysicsConstants()
