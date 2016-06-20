@@ -13,7 +13,29 @@ import cmath
 import math
 
 
+## Generates and updates the propagation hamiltonian. 
+# HamGen generates the propagation hamiltonian according to the model parameters provided through param (PhysConst), Um (PMNSGen), Ug (SUGen). Also updates this hamiltonian throughout neutrino propagation (according to varying earth density) using geometry information from a track (Track) and density splines.
+
+
 class HamGen(object):
+
+	## The constructor
+	# The utility of the constructor, other than providing local variables to the 
+	# multiple input objects, is to provide a method for switching between different
+	# propagation modes. There are two physical decisions to make before propagation.
+	# The first concerns neutrino decay. If myeig_dcy is not provided as an argument,
+	# The hamiltonian will be constructed with no decay term, leading to standard 
+	# neutrino oscillation physics. If decay is desired, a SUGen object, myeig_dcy
+	# is provided, with the details of the decay model.
+	# The second decision concerns the matter potential. If no splines object
+	# is provided, the matter potential term will be left off, 
+	# and the propagation will proceed in vacuum. If splines is provided as a float,
+	# then propagation will proceed in a constant potential corresponding to the 
+	# value of that float (though it is easier just to alter the func() function 
+	# in DeSolve to the desired constant. If a Splines object (class Splines) is 
+	# provided, then the potential term will vary with the earth density, though 
+	# the hamiltonian must be explicitly updated at each propegation step using the 
+	# update() function.
 
 	def __init__(self,param,Um,Ug,track,myeig_dcy=None,splines=None):
 		self.param=param
@@ -114,6 +136,18 @@ class HamGen(object):
 
 		if matter:			
 			self.H += self.Int	
+
+	## This function updates the propagation hamiltonian as the earth radius changes.
+	# Uses the track object to compute earth radius from fractional progress along 
+	# the neutrino track, and then uses the earth density spline and electron 
+	# fraction splines from the splines object to calculate the matter potential.
+	# Returns a hamiltonian matrix with properly updated matter potential term.
+	# checks the param object to determine whether the particle propagating is a 
+	# neutrino or an antineutrino. If antineutrino, the sign of the potential term
+	# is reversed.
+	# @par x is the fractional distance traversed along the track (distance/track length).
+	# @return an updated hamiltonian matrix (2d np array)
+
 
 	def update(self,x):
 		if self.doupdate==True:

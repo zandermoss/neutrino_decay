@@ -15,6 +15,14 @@ import numpy as np
 import random
 import cmath
 
+## A class for storage of all relevan physics quantites.
+# The quantities range from known constants like GFermi and pi to 
+# the number of neutrinos in the model, mixing parameters,etc. 
+# where the mixing parameters and masses are concerned, this object
+# stores best fit values from previous experiments. New physical parameters
+# are samples appropriately from the SUGen and PMNSGen objects.
+
+
 class PhysicsConstants(object):
 	
 	def __init__(self,sterile_mass):

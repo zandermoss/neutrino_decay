@@ -16,7 +16,25 @@ import cmath
 import math
 import Splines
 
+
+## DeSolve implements a complex ode solver algorithm from scipy.integrate
+# This class is called once all neutrino model parameters and the neutrino track 
+# are set up. The constructor function instantiates a complex_ode solver object, 
+# and sets integration parameters. The prop() function evolves an initial pure
+# neutrino flavor through the earth, making calls to the func() function, which
+# fetches an updated hamiltonian at each distance step, according to the geometry 
+# information from the track object passed to prop().
+
 class DeSolve(object):
+
+
+	## The Constructor
+	# accepts a PhysConst object, as well as a HamGen object, and assigns 
+	# local variables to them. The integrator object is initialized with a specified
+	# relative error tolerance and maximum number of steps. Finally, flavor basis 
+	# vectors are defined for calculating oscillation amplitudes in prop().
+	# @par myhamgen a HamGen object to be used for hamiltonian updating over the trajectory of the neutrino.
+	# @par param a PhysConst object to be used by the solver.
 
 	def __init__(self,myhamgen,param):
 		self.hamgen = myhamgen
@@ -39,8 +57,12 @@ class DeSolve(object):
 
 		#---------------------
 
-	#Time independent hamiltonian,
-	#define as matrix product for DE solver:
+
+	## Updating function for the hamiltonian as the neutrino propagates through the earth.
+	# Calls hamgen.update() with the progress along the total track length and current neutrino state. Returns the product of the updated hamiltonian and the neutrino state times a phase. This constitutes the RHS of the schrodinger equation (divided by i. hbar is 1 so the LHS is simply a time derivative, for the convenience of the solver).
+	#par t the distance (time) travelled along the track.
+	#par y deprecated!
+	#return the RHS of the schrodinger equation divided by i.
 	def func(self,t,y):
 		H=self.hamgen.update(t/self.norm)
 		#H=self.hamgen.update(0.5)
@@ -48,13 +70,13 @@ class DeSolve(object):
 
 		return -1j*np.dot(H,y)
 
-	def printfunc(self,t):
-		H=self.hamgen.update(t/self.norm)
-		#H=self.hamgen.update(0.5)
-		print H
-		return H 
-		
-	
+
+	## Propagates a neutrino of flavor i along a track defined by the track argument. Calculates amplitude for oscillation into the j flavor.
+	# Calculates the total track length from the track object (as well as the step resolution). Steps the initial neutrino state forward along the track, calling func() for hamiltonian updates at each stage. At the end of the evolution, the complex amplitude squared of the inner product of the final state with the jth flavor state is calculated and returned.
+	# @par track a Track object with the track geometry.
+	# @par i the initial neutrino flavor state.
+	# @par j the target neutrino flavor state.
+	# @return the amplitude for transition from the ith to jth flavor state.
 
 	def prop(self,track,i,j):	
 		#Initial value: pure neutrino-0 state
