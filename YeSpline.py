@@ -8,18 +8,26 @@ from scipy.interpolate import InterpolatedUnivariateSpline
 
 import dill as pickle
 
-
 from scipy.ndimage.filters import gaussian_filter1d as gausfilt
 import random
 import cmath
 import math
 
+## A simple function defining a piecewise electron fraction as a function of 
+# earth radius.
 def ye(x):
     if x <= 0.5475:
         return 0.4656
     else:
         return 0.4957
 
+## A function which smooths the piecewise profile from ye() and fits a spline.
+# Smooths the electron fraction profile using a gaussian 
+# convolution to avoid trouble with the numerical solver in DeSolve encountering
+# discontinuities in the potential. A UnivariateSpline is fit to the smoothed profile.
+# The script containing this function is executable, and will pickle the spline and
+# write it to ye_spline.p.
+# @return the fit spline.
 
 def YeSpline():
     """

@@ -5,6 +5,8 @@ from scipy.interpolate import InterpolatedUnivariateSpline
 from matplotlib import pyplot as plt
 import dill as pickle
 
+## A class for generating, pickling, and writing an earth density spline according 
+# to the piecewise PREM model.
 
 class EarthDensity():
 	"""
@@ -12,6 +14,9 @@ class EarthDensity():
 	w/r/t spline range: x is a dimensional radius. x = 0 --> center. x = 1 : Earthradius
 	"""
 
+	## The constructor
+	# Initializes the number of samples taken for smoothing, the number of points
+	# used to construct the spline, and earth radius.
 
 	def __init__(self):
 		self.nspl=12000 #Number of samples to take from ER
@@ -19,6 +24,8 @@ class EarthDensity():
 		self.EarthRadius = 6371.0	#[km]
 		self.Radius = 6371.0	#[km]
 
+
+	## A function defining the piecewise PREM model for earth density.
 
 	def rdensity(self,x):
 		# Calcula la densidad de la Tierra segun el PREM
@@ -49,6 +56,14 @@ class EarthDensity():
 		elif r>=self.EarthRadius :
 			dne=0.0
 		return dne
+
+## A function which smooths the piecewise profile from rdensity() and fits a spline.
+# Smooths the earth density profile using a gaussian 
+# convolution to avoid trouble with the numerical solver in DeSolve encountering
+# discontinuities in the potential. A UnivariateSpline is fit to the smoothed profile.
+# The script containing this function is executable, and will pickle the spline and
+# write it to earth_spline.p.
+# @return the fit spline.
 
 
 	def EarthSpline(self):

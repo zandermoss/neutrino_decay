@@ -9,13 +9,36 @@ import random
 import cmath
 import math
 
+## A class for generating elements of SU(N)
+# A class for generating elements of SU(N) either from given angles or phases,
+# or from parameters sampled (by sample_phase() or sample_angle()) from a distribution
+# flat with respect to the haar measure on SU(N). For details of the construction,
+# see: "Composite parameterization and Haar measure for all unitary and
+# special unitary groups", arXiv:1103.3408 [math-ph]
+# This class, and it's daughter: PMNSGen, are used to generate the matrices which
+# diagonalize the vacuum and decay terms in the hamiltonian. 
+# To perform simulations with specific (determined) values in the lambda matrix,
+# one can forego the sampling functions, and set the lambda matrix elements 
+# explicity by accessing the lamb member function and then simply generate the desired# matrix with matrix_gen().
+
 
 class SUGen(object):
+
+	## The constructor
+	# initializes the "lambda matrix", which stores all phases and mixing angles
+	# for the construction of a SU(N) matrix.
+	# @par param the PhysConst object. The number of neutrinos (the N in SU(N)) is specified here. 
 
 	def __init__(self,param):
 		self.param=param
 
 		self.lamb=np.zeros([self.param.numneu,self.param.numneu],complex)
+
+	## Samples a random lambda matrix.
+	# Constructs the lambda matrix by sampling phases and angles with
+	# sample_phase() and sample_angle(). The construction and scalar sampling
+	# is done so that the parent distribution is flat with respect to the haar
+	# measure on SU(N) (see the paper cited in this class reference for details).
 
 	def sample_params(self):
 		d=self.param.numneu
@@ -29,10 +52,18 @@ class SUGen(object):
 				n+=1
 			m+=1
 
+	## Samples a random phase.
+	# @return the sampled angle.
+
 	def sample_phase(self):	
 		u=random.random()
 		phi=u*math.pi*2
 		return phi
+
+	##Samples a random angle. 
+	# @par m the first of two indices corresponding to the two dimensions forming the plane of rotation.
+	# @par n the second such index.
+	# @return the sampled angle
 
 	def sample_angle(self,m,n):	
 		u=random.random()
@@ -40,6 +71,12 @@ class SUGen(object):
 		theta=math.acos((1-u)**(1.0/float(k+1)))	
 		return theta
 
+	##Generates a SU(N) matrix from the lambda matrix.
+	# Proceeds as in the cited paper. If the particle is an antineutrino,
+	# the matrix is conjugate-transposed.
+	# Calls rotation_gen() and phase_gen() to generate phasing and rotation 
+	# matrices whose product will constute the final matrix. 
+	
 	def matrix_gen(self):
 		d=self.param.numneu
 		U=np.identity(d,complex)
@@ -59,6 +96,12 @@ class SUGen(object):
 		else:
 			return U
 
+	## Generates a rotation matrix.
+    # @par m the first of two indices corresponding to the two dimensions forming the plane of rotation.
+    # @par n the second such index.
+	# @return the rotation matrix as an np array
+
+
 	def rotation_gen(self,m,n):
 		"""
 		Here, we generate the rotation-type matrices used
@@ -77,6 +120,11 @@ class SUGen(object):
 		R[m,n]=lsin
 
 		return R
+
+	## Generates a phasing matrix.
+    # @par m the first of two indices which are differentially phased.
+    # @par n the second such index.
+	# @return the rotation matrix as an np array
 
 	def phase_gen(self,m,n):
 		"""

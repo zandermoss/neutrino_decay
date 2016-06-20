@@ -10,15 +10,25 @@ import cmath
 import math
 import SUGen
 
+## A daughter of SUGen specialized to the generation of PMNS matrices.
 
 class PMNSGen(SUGen.SUGen):
 
+	## The constructior
+	# Initiaizes as a daughter of SUGen, and loads in the 3x3 mixing angles
+	# (best global fit) from PhysConst
 	def __init__(self,param):
 
 		SUGen.SUGen.__init__(self,param)
 
 
 		self.thetas=[param.th12,param.th13,param.th23]
+
+
+	##Generates a matrix corresponding to the lambda parameters.
+	# slight difference from matrix_gen() in SUGen in that no phases 
+	# are rolled in. Ultimately, they will be, but they are currently 
+	# neglected for the sake of simplicity.
 
 	def matrix_gen(self):
 		d=self.param.numneu
@@ -42,6 +52,15 @@ class PMNSGen(SUGen.SUGen):
 			
 			return U.conj().T
 
+
+	##Samples lambda parameters.
+	# this is all the same as the SUGen sampling function, except that the 3x3
+	# mixing angles are drawn from the PhysConst class (best global fit angles)
+	# instead of being sampled. Ultimately, if there is a sterile neutrino, and 
+	# it does decay, the global fits will change to some extent, so these angles 
+	# will have to be fit cotemporally with the decay structure and extra mixing/
+	# phasing angles. For the time being, they will be fixed for simplicity of 
+	# analysis.
 
 	def sample_params(self):
 		d=self.param.numneu

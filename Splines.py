@@ -15,6 +15,8 @@ class Spline():
 
 	## The constructor
 	# Reads in the splines as scipy.interpolate UnivariateSpline objects.
+	# These splines are objects which have been 'pickled' using the dill
+	# module https://pypi.python.org/pypi/dill
 	
 	def __init__(self):
 		self.ye_spline = pickle.load( open( "ye_spline.p", "rb" ) )
