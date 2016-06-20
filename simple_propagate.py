@@ -13,7 +13,6 @@ import random
 import cmath
 import math
 
-import ApproxSolve
 import DeSolve
 import HamGen
 import PMNSGen
