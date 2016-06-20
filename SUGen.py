@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
 import PhysConst as PC
-import MinimalTools as MT
 import random
 import cmath
 import math

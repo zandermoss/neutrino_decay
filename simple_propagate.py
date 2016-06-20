@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
 import PhysConst as PC
-import MinimalTools as MT
 import Splines  
 import SUGen as SU
 import Track
