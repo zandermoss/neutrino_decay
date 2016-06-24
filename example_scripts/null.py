@@ -10,8 +10,8 @@ import random
 import Verosim
 
 
-V=Verosim.Verosim(4)
-param=pc.PhysicsConstants()
+V=Verosim.Verosim(4,"2010")
+param=pc.PhysicsConstants(4)
 ntype=1
 testnum=1
 
@@ -133,5 +133,6 @@ for x in range(0,dims[0]):
         data[x,y]=index(myind,raw_data)
 
 print data 
+print expectation
 
 np.savez("null_oscillation_simp2",exp=expectation,exp_nopert=expectation_nopert,dat=data,chi2=retvec[0],nuisance=nuisance)
