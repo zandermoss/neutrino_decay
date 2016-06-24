@@ -10,8 +10,8 @@ import random
 import Verosim
 
 
-V=Verosim.Verosim(4)
-param=pc.PhysicsConstants()
+V=Verosim.Verosim(4,"2010")
+param=pc.PhysicsConstants(4)
 ntype=1
 testnum=1
 
