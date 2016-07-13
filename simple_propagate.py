@@ -163,6 +163,66 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 
 	return amp 
 
+def PropagationHistory(initial_flavor,final_flavor,
+                           energy,theta,myparam,pmnsgen,ugen,eig_dcy):
+
+
+	""" 
+	Here, we have the option of sampling a random decay matrix, but currently
+	we're specifying the decay parameters and feeding them in through the ugen 
+	object. When it is time to search the parameter space by sampling, the first two
+	lines would implement that sampling.
+	"""
+
+	#ugen=SU.SUGen(myparam)
+	#ugen.sample_params()
+	Ug=ugen.matrix_gen()
+
+	"""
+	The Um matrix is generated from the PMNSGen object.
+	""" 
+
+	Um=pmnsgen.matrix_gen()
+
+
+	"""
+	The track object is instantiated, and the track length is calculated.
+	"""
+
+	track=Track.Track(myparam,resolution,energy,theta,False)
+	track.calc_l()
+
+
+	"""
+	The hamgen object is instantiated. Here are examples of different propagation
+	modes. The first line has both eig_dcy and splines arguments, so the propagation
+	will take place in earth matter, and decay effects will be included. The second
+	line has no decay effects, but matter is included. The third has decay but no 
+	matter, and the 4th is a simple vacuum propagation.
+	"""
+
+	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,splines)
+#	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,splines)
+#	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,None)
+	#vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,None)
+
+	#prem solution
+	
+	"""
+	A DeSolve object is instantiated, with the freshly minted hamiltonian generator
+	and PhysConst parameters as arguments.
+	"""
+
+	desolve= DeSolve.DeSolve(vhamgen,myparam)
+
+	"""
+	The transition ampliude from initial_flavor to final_flavor is calculated using
+	the DeSolve prop function. This amplitude is then returned to the calling script.
+	"""
+
+	distances,amplitudes=desolve.prop_hist(track,initial_flavor,final_flavor)
+
+	return distances,amplitudes 
 
 ##Deprecated: loops over energy and zenith angle are now done from the calling script.
 
