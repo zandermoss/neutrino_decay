@@ -122,11 +122,13 @@ class DeSolve(object):
 
 	
 		outarr = []
-		distarr=[]
+		distarr = []
 		while self.r.successful() and self.r.t < xf:
 			distarr.append(self.r.t/self.param.km)
-			outarr.append(self.r.integrate(self.r.t+step))
-
+			complex_state_vector=self.r.integrate(self.r.t+step)
+			ip=np.dot(self.b[j],complex_state_vector)	
+			amp=np.absolute(ip)**2
+			outarr.append(amp)
 
 		np_out=np.asarray(outarr)
 		np_dist=np.asarray(distarr)
