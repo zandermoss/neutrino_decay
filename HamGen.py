@@ -52,7 +52,6 @@ class HamGen(object):
 		#Ugen=PC.PhysicsConstants()
 		self.track=track
 		self.H=np.zeros([self.param.numneu,self.param.numneu],complex)	
-		self.H0=np.zeros([self.param.numneu,self.param.numneu],complex)	
 		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
 		
 		#Check if matter effects or decay is present
@@ -109,14 +108,14 @@ class HamGen(object):
 		
 			Md[i,i]= self.param.dm2[1,i+1]/(2*self.track.E)
 		
-			#print "Md:", Md	
+	
 			if decay:	
 				Gd[i,i]= self.eig_dcy[i]*(self.track.E**(self.param.decay_power)) #Power law energy dependence 
 
-	
 		M= np.dot(Um,np.dot(Md,Um.conj().T))
 		if decay:	
 			G= np.dot(Ug,np.dot(Gd,Ug.conj().T))
+
 		"""
 		print "GAMMA MATRIX:"
 		print
@@ -127,11 +126,11 @@ class HamGen(object):
 		"""
 		#Assemble Hamiltonian
 		self.H=M
-		self.H0=M
+
 
 		if decay:
-			self.H += -1j*G 
-			self.H0 += -1j*G 
+			self.H += -1j*G   
+			
 
 		if matter:			
 			self.H += self.Int	
