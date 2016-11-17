@@ -9,36 +9,6 @@ import random
 
 import Verosim
 
-
-V=Verosim.Verosim(4,"2010")
-param=pc.PhysicsConstants(4)
-ntype=1
-testnum=1
-
-
-
-pg=PMNSGen.PMNSGen(param)
-pg.sample_params()
-pg.lamb[1,3]=-0.2318238
-
-print pg.lamb
-
-#pg=sp.unpickle_PMNS(param)
-	
-ug=sp.unpickle_decay(param)
-eig_dcy=sp.unpickle_dcyeig(param)
-
-
-
-cuts=np.zeros(2)
-cuts[0]=6
-cuts[1]=50-16
-
-print "SETTING CUTS"
-V.SetEproxCuts(cuts)
-print "SET CUTS"
-V.SetSimpsNIntervals(2)
-
 def wrapcall(arg):
 	nparg=np.asarray(arg)
 
@@ -56,6 +26,32 @@ def wrapcall(arg):
 
 	olv=sp.AtmosphericNeutrinoOscillationProbability(1,1,nparg[0]*param.GeV,nparg[1],param,pg,ug,eig_dcy)
 	return olv[0]
+
+
+V=Verosim.Verosim(4,"2010",wrapcall)
+param=pc.PhysicsConstants(4)
+ntype=1
+testnum=1
+
+pg=PMNSGen.PMNSGen(param)
+pg.sample_params()
+pg.lamb[1,3]=-0.2318238
+
+print pg.lamb
+
+#pg=sp.unpickle_PMNS(param)
+	
+ug=sp.unpickle_decay(param)
+eig_dcy=sp.unpickle_dcyeig(param)
+
+cuts[0]=6
+cuts[1]=50-16
+
+print "SETTING CUTS"
+V.SetEproxCuts(cuts)
+print "SET CUTS"
+V.SetSimpsNIntervals(2)
+
 V.SetDeSolver(wrapcall)
 
 """
@@ -79,12 +75,11 @@ for x in zip(ns,vals,diffs):
 """
 
 
-V.CalculateExpectation()
-
 init=np.zeros(2)
 init[0]=1
 init[1]=0
 
+# replace this with new minLLH method
 retvec=V.Chi2MinNuisance(init)
 print retvec
 
