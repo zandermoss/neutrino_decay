@@ -122,9 +122,7 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	amps= np.zeros([len(erange)])
 	 
 	for i in range(0,len(erange)):
-		amps[i] = MO.Trace(np.dot(rhof[i],rhof_mass))
-#		print "AMPS: ",MO.Trace(np.dot(rhof[i,:,:],rhof_mass))
-		print amps	
+		amps[i] = np.real(MO.Trace(np.dot(rhof[i],rhof_mass)))
 
 	return amps
 

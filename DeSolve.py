@@ -75,8 +75,6 @@ class DeSolve(object):
 		drho_dt = np.zeros(self.rhoshapes,complex)
 
 		for ei in range(0,rho.shape[0]):
-			#print "EI: ",ei," RHO: ", rho[ei,:,:]
-			#print
 			drho_dt[ei,:,:] = -1.0j*MO.Comm(H0[ei,:,:],rho[ei,:,:]) - 0.5*MO.AntiComm(Gamma[ei,:,:],rho[ei,:,:])
 		drho_dt.shape = self.shapeprod
 
@@ -91,11 +89,6 @@ class DeSolve(object):
 	# @return the amplitude for transition from the ith to jth flavor state.
 
 	def prop(self,track,rho0):	
-		#Initial value: pure neutrino-0 state
-		for ei in range(0,rho0.shape[0]):
-			print "EI: ",ei, "   RHO0: ",rho0[ei,:,:]
-
-
 		self.shapeprod = (rho0.shape[0])*(rho0.shape[1])*(rho0.shape[2])
 		self.rhoshapes[0] = rho0.shape[0]
 		self.rhoshapes[1] = rho0.shape[1]
@@ -113,7 +106,6 @@ class DeSolve(object):
 		self.r.set_initial_value(rho0, x0)
 		rhof=self.r.integrate(xf)
 		rhof.shape = self.rhoshapes
-		print "RHOF: ", rhof
 		return rhof
 
 	## Propagates a neutrino of flavor i along a track defined by the track argument. Returns the entire history of propagation (distances, transition amplitudes to flavor j).

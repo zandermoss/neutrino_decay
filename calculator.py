@@ -68,7 +68,7 @@ n_calc=int(sys.argv[3])
 
 
 if (calcvar=="energy"):
-	valvec=np.logspace(0,6,n_calc)
+	valvec=np.logspace(-1,6,n_calc)
 
 elif (calcvar=="theta"):
 	valvec=np.linspace(0,2*pi,n_calc)
@@ -115,7 +115,7 @@ num_vec=np.zeros(len(valvec))
 E = valvec*param.TeV
 print "E: ",E
 num_vec = sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,tau,param,pg,nu_mass,phi_mass)
-
+print "NV: ",num_vec
 
 np.savez(calcvar+"_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
 
