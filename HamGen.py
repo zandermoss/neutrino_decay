@@ -36,10 +36,9 @@ class HamGen(object):
 	# the hamiltonian must be explicitly updated at each propegation step using the 
 	# update() function.
 
-	def __init__(self,param,Um,Ug,track,myeig_dcy=None,splines=None):
+	def __init__(self,param,Um,tau,nu_mass,phi_mass,track,decay,splines=None):
 		self.param=param
 		self.ugen=SU.SUGen(param)
-		self.eig_dcy=myeig_dcy
 		self.splines=splines
 		self.doupdate=False
 
@@ -53,12 +52,8 @@ class HamGen(object):
 		self.track=track
 		self.H=np.zeros([self.param.numneu,self.param.numneu],complex)	
 		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
-		
+		self.Gamma=np.zeros([self.param.numneu,self.param.numneu],complex)	
 		#Check if matter effects or decay is present
-		if self.eig_dcy==None:
-			decay=False
-		else:
-			decay=True
 
 
 		if self.splines==None:
@@ -107,14 +102,15 @@ class HamGen(object):
 		for i in range(0,self.param.numneu):
 		
 			Md[i,i]= self.param.dm2[1,i+1]/(2*self.track.E)
-		
 	
-			if decay:	
-				Gd[i,i]= self.eig_dcy[i]*(self.track.E**(self.param.decay_power)) #Power law energy dependence 
-
+		if decay:
+			for i in range(0,self.param.numneu):
+				for j in range(i+1,self.param.numneu):
+					self.Gamma[i,j] = (self.track.E**(self.param.decay_power))*(nu_mass[j]/tau[i,j])
+	
 		M= np.dot(Um,np.dot(Md,Um.conj().T))
 		if decay:	
-			G= np.dot(Ug,np.dot(Gd,Ug.conj().T))
+			G= np.dot(Um,np.dot(self.Gamma,Um.conj().T))
 
 		"""
 		print "GAMMA MATRIX:"
