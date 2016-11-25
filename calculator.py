@@ -117,5 +117,5 @@ print "E: ",E
 num_vec = sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,tau,param,pg,nu_mass,phi_mass)
 print "NV: ",num_vec
 
-np.savez(calcvar+"_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
+np.savez(calcvar+"_schrodinger_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
 
