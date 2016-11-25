@@ -36,7 +36,7 @@ class HamGen(object):
 	# the hamiltonian must be explicitly updated at each propegation step using the 
 	# update() function.
 
-	def __init__(self,param,Um,Ug,track,myeig_dcy=None,splines=None):
+	def __init__(self,param,Um,tau,nu_mass,phi_mass,track,myeig_dcy=None,splines=None):
 		self.param=param
 		self.ugen=SU.SUGen(param)
 		self.eig_dcy=myeig_dcy
@@ -51,7 +51,9 @@ class HamGen(object):
 		#to the flavor basis, respectively
 		#Ugen=PC.PhysicsConstants()
 		self.track=track
-		self.H=np.zeros([self.param.numneu,self.param.numneu],complex)	
+		erange = self.track.erange
+		self.H0=np.zeros([len(erange),self.param.numneu,self.param.numneu],complex)	
+		self.Gamma=np.zeros([len(erange),self.param.numneu,self.param.numneu],complex)	
 		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
 		
 		#Check if matter effects or decay is present
@@ -91,8 +93,6 @@ class HamGen(object):
 		
 		#Fill in mass and decay eigenvalues
 		Md=np.zeros([self.param.numneu,self.param.numneu],complex)
-		if decay:	
-			Gd=np.zeros([self.param.numneu,self.param.numneu],complex)
 
 		#Add interaction term
 		if (matter)&(vmatter==False):
@@ -104,36 +104,24 @@ class HamGen(object):
 				else:
 					self.Int[flv,flv]=-potential/2
 
-		for i in range(0,self.param.numneu):
-		
-			Md[i,i]= self.param.dm2[1,i+1]/(2*self.track.E)
-		
-	
-			if decay:	
-				Gd[i,i]= self.eig_dcy[i]*(self.track.E**(self.param.decay_power)) #Power law energy dependence 
 
-		M= np.dot(Um,np.dot(Md,Um.conj().T))
+		for ei in range(0,len(erange)):
+			for i in range(0,self.param.numneu):
+				Md[i,i]= self.param.dm2[1,i+1]/(2*erange[ei])
+				M= np.dot(Um,np.dot(Md,Um.conj().T))
+				self.H0[ei,:,:]=M
+
 		if decay:	
-			G= np.dot(Ug,np.dot(Gd,Ug.conj().T))
-
-		"""
-		print "GAMMA MATRIX:"
-		print
-		for i in range(0,4):
-			for j in range(0,4):
-				print i,j,":  ",G[i,j]
-		#print G
-		"""
-		#Assemble Hamiltonian
-		self.H=M
-
-
-		if decay:
-			self.H += -1j*G   
-			
+			for ei in range(0,len(erange)):
+				for i in range(0,self.param.numneu):
+					for j in range(i+1,self.param.numneu):
+						self.Gamma[ei,i,j] = (erange[ei]**(self.param.decay_power))(nu_mass[j]/tau[i,j])
 
 		if matter:			
-			self.H += self.Int	
+			for ei in range(0,len(erange)):
+				self.H0[ei] += self.Int	
+
+
 
 	## This function updates the propagation hamiltonian as the earth radius changes.
 	# Uses the track object to compute earth radius from fractional progress along 
@@ -147,7 +135,7 @@ class HamGen(object):
 	# @return an updated hamiltonian matrix (2d np array)
 
 
-	def update(self,x):
+	def H0_Update(self,x):
 		if self.doupdate==True:
 			r=self.track.r(x)
 			
@@ -165,11 +153,20 @@ class HamGen(object):
 					self.Int[flv,flv]=ppotential-0.5*npotential
 				else:
 					self.Int[flv,flv]=-0.5*npotential
+
+			ret_array=np.zeros([len(self.track.erange),self.param.numneu,self.param.numneu],complex)	
 		
 			if (self.param.neutype=='antineutrino'):
-				return self.H+self.Int*-1.0
+				for ei in range(0,len(self.track.erange)):
+					ret_array[ei,:,:] = self.H0+self.Int*-1.0
 
 			else:
-				return self.H+self.Int
+				for ei in range(0,len(self.track.erange)):
+					ret_array[ei,:,:] = self.H0+self.Int
+
+			return ret_array
 		else:
-			return self.H
+			return self.H0
+	
+	def GetGamma(self):
+		return self.Gamma

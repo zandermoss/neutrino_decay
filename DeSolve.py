@@ -6,6 +6,7 @@ from scipy.integrate import complex_ode
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
+import MatrixOps as MO
 
 
 
@@ -62,12 +63,16 @@ class DeSolve(object):
 	#par t the distance (time) travelled along the track.
 	#par y deprecated!
 	#return the RHS of the schrodinger equation divided by i.
-	def func(self,t,y):
-		H=self.hamgen.update(t/self.norm)
+	def func(self,t,rho):
+		H0=self.hamgen.H0_update(t/self.norm)
+		Gamma = self.hamgen.GetGamma()
 		#H=self.hamgen.update(0.5)
 		#H=self.hamgen.H
 
-		return -1j*np.dot(H,y)
+		for ei in range(0,rho.shape[0]):
+			drho_dt = -1.0j*MO.Comm(H0[ei,:,:],rho[ei,:,:]) - 0.5*MO.AntiComm(Gamma[ei,:,:],rho[ei,:,:])
+
+		return drho_dt
 
 
 	## Propagates a neutrino of flavor i along a track defined by the track argument. Calculates amplitude for oscillation into the j flavor.
@@ -77,26 +82,21 @@ class DeSolve(object):
 	# @par j the target neutrino flavor state.
 	# @return the amplitude for transition from the ith to jth flavor state.
 
-	def prop(self,track,i,j):	
+	def prop(self,track,rho0):	
 		#Initial value: pure neutrino-0 state
 
 
-		y0=self.b[i]
 		x0=0.0
 	
-
 		xf=self.param.km*track.l
 		#print "BASELINE:", self.param.km*track.l
 		self.norm=xf
 		step=self.param.km*track.step
 
-		self.r.set_initial_value(y0, x0)
-		output=self.r.integrate(xf)
+		self.r.set_initial_value(rho0, x0)
+		rhof=self.r.integrate(xf)
 
-		ip=np.dot(self.b[j],output)	
-		amp=np.absolute(ip)**2
-	
-		return amp
+		return rhof
 
 	## Propagates a neutrino of flavor i along a track defined by the track argument. Returns the entire history of propagation (distances, transition amplitudes to flavor j).
 	# Calculates the total track length from the track object (as well as the step resolution). Steps the initial neutrino state forward along the track, calling func() for hamiltonian updates at each stage. At the end of the evolution, a vector of the complex amplitude squared of the inner product of each state in the iterative integration process with the jth flavor state is calculated and returned, along with a vector of relevant distances (distance at each propagation step).

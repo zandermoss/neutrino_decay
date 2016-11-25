@@ -23,13 +23,13 @@ class Track():
 # @par zenith the neutrino zenith angle
 # @par randz a boolean switch allowing the randomization of zenith angle.
 
-	def __init__(self,param,resolution,energy,theta,randz=False):
+	def __init__(self,param,resolution,erange,theta,randz=False):
 		self.param=param
 		self.l=2*self.param.EARTHRADIUS
 		self.theta=theta	
 		self.resolution=resolution #steps/km
 		self.step=1.0/resolution
-		self.E=energy
+		self.erange=erange
 
 		self.intersections=[None,None]
 		self.shellradii=[0.1917,0.5462]

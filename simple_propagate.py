@@ -4,6 +4,7 @@ import scipy as sp
 from scipy.integrate import ode
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
+import MatrixOps as MO
 
 import PhysConst as PC
 import Splines  
@@ -103,7 +104,7 @@ def unpickle_dcyeig(param):
 # @return the transition amplitude.
 
 def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
-                           energy,theta,myparam,pmnsgen,ugen,eig_dcy):
+                           erange,theta,myparam,pmnsgen,tau,eig_dcy):
 
 
 	""" 
@@ -115,7 +116,7 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 
 	#ugen=SU.SUGen(myparam)
 	#ugen.sample_params()
-	Ug=ugen.matrix_gen()
+	#Ug=ugen.matrix_gen()
 
 	"""
 	The Um matrix is generated from the PMNSGen object.
@@ -128,7 +129,7 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	The track object is instantiated, and the track length is calculated.
 	"""
 
-	track=Track.Track(myparam,resolution,energy,theta,False)
+	track=Track.Track(myparam,resolution,erange,theta,False)
 	track.calc_l()
 
 
@@ -140,12 +141,18 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	matter, and the 4th is a simple vacuum propagation.
 	"""
 
-	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,splines)
+	vhamgen=HamGen.HamGen(myparam,Um,tau,nu_mass,phi_mass,track,eig_dcy,splines)
 #	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,splines)
 #	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,None)
 	#vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,None)
 
 	#prem solution
+
+
+	rho0=np.zeros([len(erange),myparam.numneu,myparam.numneu],complex)
+	for ei in range(0,len(erange)):
+		
+
 	
 	"""
 	A DeSolve object is instantiated, with the freshly minted hamiltonian generator
