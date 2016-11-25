@@ -36,10 +36,9 @@ class HamGen(object):
 	# the hamiltonian must be explicitly updated at each propegation step using the 
 	# update() function.
 
-	def __init__(self,param,Um,tau,nu_mass,phi_mass,track,myeig_dcy=None,splines=None):
+	def __init__(self,param,Um,tau,nu_mass,phi_mass,track,decay,splines=None):
 		self.param=param
 		self.ugen=SU.SUGen(param)
-		self.eig_dcy=myeig_dcy
 		self.splines=splines
 		self.doupdate=False
 
@@ -57,11 +56,6 @@ class HamGen(object):
 		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
 		
 		#Check if matter effects or decay is present
-		if self.eig_dcy==None:
-			decay=False
-		else:
-			decay=True
-
 
 		if self.splines==None:
 			matter=False
@@ -108,7 +102,6 @@ class HamGen(object):
 		for ei in range(0,len(erange)):
 			for i in range(0,self.param.numneu):
 				Md[i,i]= self.param.dm2[1,i+1]/(2*erange[ei])
-				M= np.dot(Um,np.dot(Md,Um.conj().T))
 				self.H0[ei,:,:]=M
 
 		if decay:	
@@ -119,8 +112,7 @@ class HamGen(object):
 
 		if matter:			
 			for ei in range(0,len(erange)):
-				self.H0[ei] += self.Int	
-
+				self.H0[ei] += np.dot(Um.conj().T,np.dot(self.Int,Um))	
 
 
 	## This function updates the propagation hamiltonian as the earth radius changes.
@@ -156,13 +148,15 @@ class HamGen(object):
 
 			ret_array=np.zeros([len(self.track.erange),self.param.numneu,self.param.numneu],complex)	
 		
+			MassInt = np.dot(Um.conj().T,np.dot(self.Int,Um))
+
 			if (self.param.neutype=='antineutrino'):
 				for ei in range(0,len(self.track.erange)):
-					ret_array[ei,:,:] = self.H0+self.Int*-1.0
+					ret_array[ei,:,:] = self.H0+MassInt*-1.0
 
 			else:
 				for ei in range(0,len(self.track.erange)):
-					ret_array[ei,:,:] = self.H0+self.Int
+					ret_array[ei,:,:] = self.H0+MassInt
 
 			return ret_array
 		else:

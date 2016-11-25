@@ -104,33 +104,33 @@ class DeSolve(object):
 	# @par i the initial neutrino flavor state.
 	# @par j the target neutrino flavor state.
 	# @return (distances, amplitudes) a list of lists. distances is a list of the distances corresponding to each integration step, and amplitude is the corresponding amp-squared inner product of that intermediate state with the jth flavor state.
-
-	def prop_hist(self,track,i,j):	
-		#Initial value: pure neutrino-0 state
-
-
-		y0=self.b[i]
-		x0=0.0
-	
-
-		xf=self.param.km*track.l
-		#print "BASELINE:", self.param.km*track.l
-		self.norm=xf
-		step=self.param.km*track.step
-
-		self.r.set_initial_value(y0, x0)
-
-	
-		outarr = []
-		distarr = []
-		while self.r.successful() and self.r.t < xf:
-			distarr.append(self.r.t/self.param.km)
-			complex_state_vector=self.r.integrate(self.r.t+step)
-			ip=np.dot(self.b[j],complex_state_vector)	
-			amp=np.absolute(ip)**2
-			outarr.append(amp)
-
-		np_out=np.asarray(outarr)
-		np_dist=np.asarray(distarr)
-		return np_dist,np_out
-
+#
+#	def prop_hist(self,track,i,j):	
+#		#Initial value: pure neutrino-0 state
+#
+#
+#		y0=self.b[i]
+#		x0=0.0
+#	
+#
+#		xf=self.param.km*track.l
+#		#print "BASELINE:", self.param.km*track.l
+#		self.norm=xf
+#		step=self.param.km*track.step
+#
+#		self.r.set_initial_value(y0, x0)
+#
+#	
+#		outarr = []
+#		distarr = []
+#		while self.r.successful() and self.r.t < xf:
+#			distarr.append(self.r.t/self.param.km)
+#			complex_state_vector=self.r.integrate(self.r.t+step)
+#			ip=np.dot(self.b[j],complex_state_vector)	
+#			amp=np.absolute(ip)**2
+#			outarr.append(amp)
+#
+#		np_out=np.asarray(outarr)
+#		np_dist=np.asarray(distarr)
+#		return np_dist,np_out
+#
