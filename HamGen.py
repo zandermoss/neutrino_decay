@@ -41,7 +41,7 @@ class HamGen(object):
 		self.ugen=SU.SUGen(param)
 		self.splines=splines
 		self.doupdate=False
-
+		self.Um = Um
 
 
 		#Randomized self.parameters to generate conjugation matrices
@@ -102,13 +102,14 @@ class HamGen(object):
 		for ei in range(0,len(erange)):
 			for i in range(0,self.param.numneu):
 				Md[i,i]= self.param.dm2[1,i+1]/(2*erange[ei])
-				self.H0[ei,:,:]=M
+			self.H0[ei,:,:]=Md
+
 
 		if decay:	
 			for ei in range(0,len(erange)):
 				for i in range(0,self.param.numneu):
 					for j in range(i+1,self.param.numneu):
-						self.Gamma[ei,i,j] = (erange[ei]**(self.param.decay_power))(nu_mass[j]/tau[i,j])
+						self.Gamma[ei,i,j] = (erange[ei]**(self.param.decay_power))*(nu_mass[j]/tau[i,j])
 
 		if matter:			
 			for ei in range(0,len(erange)):
@@ -148,15 +149,15 @@ class HamGen(object):
 
 			ret_array=np.zeros([len(self.track.erange),self.param.numneu,self.param.numneu],complex)	
 		
-			MassInt = np.dot(Um.conj().T,np.dot(self.Int,Um))
+			MassInt = np.dot(self.Um.conj().T,np.dot(self.Int,self.Um))
 
 			if (self.param.neutype=='antineutrino'):
 				for ei in range(0,len(self.track.erange)):
-					ret_array[ei,:,:] = self.H0+MassInt*-1.0
+					ret_array[ei,:,:] = self.H0[ei,:,:]+MassInt*-1.0
 
 			else:
 				for ei in range(0,len(self.track.erange)):
-					ret_array[ei,:,:] = self.H0+MassInt
+					ret_array[ei,:,:] = self.H0[ei,:,:]+MassInt
 
 			return ret_array
 		else:

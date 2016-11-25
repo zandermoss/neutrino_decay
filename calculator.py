@@ -9,6 +9,7 @@ import PMNSGen
 import SUGen
 import random
 import sys
+import math
 
 
 from pylab import rcParams
@@ -20,28 +21,29 @@ plt.rc('font', size=16)
 #-----------------------------------------------------------------#
 #Initialize vectors and physics parameters
 
-param=pc.PhysicsConstants(1.0)
+param=pc.PhysicsConstants()
 
 
-nu_mass = np.zeros(len(param.numneu))
-nu_mass[3]=1.0
+nu_mass = np.zeros(param.numneu)
+nu_mass[0] = 0.0
+nu_mass[1] = math.sqrt(param.dm21sq)
+nu_mass[2] = math.sqrt(param.dm31sq)
+nu_mass[3] = 1.0
 phi_mass=0.0
-param.dm2[1,2] = nu_mass[1]**2 - nu_mass[0]**2
-param.dm2[1,3] = nu_mass[2]**2 - nu_mass[0]**2
-param.dm2[2,3] = nu_mass[2]**2 - nu_mass[1]**2
 param.dm2[1,4] = nu_mass[3]**2 - nu_mass[0]**2
-param.dm2[2,4] = nu_mass[3]**2 - nu_mass[1]**2
-param.dm2[3,4] = nu_mass[3]**2 - nu_mass[2]**2
 
 pg=PMNSGen.PMNSGen(param)
+pg.lamb[0,3] = math.pi/4.0
+pg.lamb[1,3] = math.pi/4.0
+pg.lamb[2,3] = math.pi/4.0
 
 tau = np.zeros((param.numneu,param.numneu))
-tau[0,1]=1.0e-16
-tau[0,2]=1.0e-16
-tau[0,3]=1.0e-16
-tau[1,2]=1.0e-16
-tau[1,3]=1.0e-16
-tau[2,3]=1.0e-16
+tau[0,1]=1.0e+30
+tau[0,2]=1.0e+30
+tau[0,3]=1.0e+30
+tau[1,2]=1.0e+30
+tau[1,3]=1.0e+30
+tau[2,3]=1.0e+30
 
 
 
@@ -49,11 +51,9 @@ ntype=1 #0-neutrino, 1-antineutrino
 
 if ntype==0:
 	pg.param.neutype='neutrino'
-	ug.param.neutype='neutrino'
 	param.neutype='neutrino'
 elif ntype==1:
 	pg.param.neutype='antineutrino'
-	ug.param.neutype='antineutrino'
 	param.neutype='antineutrino'
 else:
 	print "BAD NEUTRINO TYPE"
@@ -112,9 +112,10 @@ num_vec=np.zeros(len(valvec))
 	#diag_amp = sp.DiagProb(0,0,E,param.PI,param,pg,ug,eig_dcy,dcy_switch,mtr_switch,2*param.EARTHRADIUS*param.km)
 
 
+E = valvec*param.TeV
+print "E: ",E
+num_vec = sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,tau,param,pg,nu_mass,phi_mass)
 
-num_vec = sp.AtmosphericNeutrinoOscillationProbability(0,0,E,param.PI,tau,param,pg,nu_mass,phi_mass)
 
-
-np.savez(calcvar+"_"+mattervar,_theta=theta,_E=E,_potential=potential,_valvec=valvec,_num_amp=num_amp,_ntype=ntype)
+np.savez(calcvar+"_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
 

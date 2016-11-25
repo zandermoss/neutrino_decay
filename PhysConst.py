@@ -25,7 +25,7 @@ import cmath
 
 class PhysicsConstants(object):
 	
-	def __init__(self,sterile_mass):
+	def __init__(self):
 		## PHYSICS CONSTANTS
 		#===========================================================================
 		# NAME
@@ -283,7 +283,7 @@ class PhysicsConstants(object):
 
 
 		# STERILE 
-		self.dm41sq = sterile_mass				# [eV^2]
+		self.dm41sq = 0.0    				# [eV^2]
 		self.dm51sq = 0.0					# [eV^2]
 		self.dm61sq = 0.0					# [eV^2]
 		# SQUARED MASS DIFFERENCE MATRIX
@@ -425,17 +425,17 @@ class PhysicsConstants(object):
 		dcp[3] = self.delta3
 		#dcp[4] = self.delta2		
 		# Refresh Square mass differences
-		dmsq = self.dmsq
-		dmsq[2] = self.dm21sq
-		dmsq[3] = self.dm31sq
-		dmsq[4] = self.dm41sq
-		dmsq[5] = self.dm51sq
-		dmsq[6] = self.dm61sq		
+		#dmsq = self.dmsq
+		#dmsq[2] = self.dm21sq
+		#dmsq[3] = self.dm31sq
+		#dmsq[4] = self.dm41sq
+		#dmsq[5] = self.dm51sq
+		#dmsq[6] = self.dm61sq		
 		
 		dm2 = self.dm2
 		dm2[1,2] = self.dm21sq
 		dm2[1,3] = self.dm31sq
-		dm2[2,3] = self.dm32sq
+		#dm2[2,3] = self.dm32sq
 		dm2[1,4] = self.dm41sq
 		dm2[1,5] = self.dm51sq
 		dm2[1,6] = self.dm61sq
@@ -449,4 +449,4 @@ class PhysicsConstants(object):
 		rand=1-2*random.random()
 		self.dcps[1]=rand	
 		self.dcpc[1]=np.sqrt(1-rand**2)
-	
+#	

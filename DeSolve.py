@@ -39,6 +39,8 @@ class DeSolve(object):
 	def __init__(self,myhamgen,param):
 		self.hamgen = myhamgen
 		self.param=param
+		self.rhoshapes=[0,0,0]
+		self.shapeprod=0.0
 
 		#Set up the solver
 		self.norm=0
@@ -64,13 +66,19 @@ class DeSolve(object):
 	#par y deprecated!
 	#return the RHS of the schrodinger equation divided by i.
 	def func(self,t,rho):
-		H0=self.hamgen.H0_update(t/self.norm)
+		rho.shape = self.rhoshapes
+		H0=self.hamgen.H0_Update(t/self.norm)
 		Gamma = self.hamgen.GetGamma()
 		#H=self.hamgen.update(0.5)
 		#H=self.hamgen.H
 
+		drho_dt = np.zeros(self.rhoshapes,complex)
+
 		for ei in range(0,rho.shape[0]):
-			drho_dt = -1.0j*MO.Comm(H0[ei,:,:],rho[ei,:,:]) - 0.5*MO.AntiComm(Gamma[ei,:,:],rho[ei,:,:])
+			#print "EI: ",ei," RHO: ", rho[ei,:,:]
+			#print
+			drho_dt[ei,:,:] = -1.0j*MO.Comm(H0[ei,:,:],rho[ei,:,:]) - 0.5*MO.AntiComm(Gamma[ei,:,:],rho[ei,:,:])
+		drho_dt.shape = self.shapeprod
 
 		return drho_dt
 
@@ -84,7 +92,16 @@ class DeSolve(object):
 
 	def prop(self,track,rho0):	
 		#Initial value: pure neutrino-0 state
+		for ei in range(0,rho0.shape[0]):
+			print "EI: ",ei, "   RHO0: ",rho0[ei,:,:]
 
+
+		self.shapeprod = (rho0.shape[0])*(rho0.shape[1])*(rho0.shape[2])
+		self.rhoshapes[0] = rho0.shape[0]
+		self.rhoshapes[1] = rho0.shape[1]
+		self.rhoshapes[2] = rho0.shape[2]
+
+		rho0.shape = self.shapeprod
 
 		x0=0.0
 	
@@ -95,7 +112,8 @@ class DeSolve(object):
 
 		self.r.set_initial_value(rho0, x0)
 		rhof=self.r.integrate(xf)
-
+		rhof.shape = self.rhoshapes
+		print "RHOF: ", rhof
 		return rhof
 
 	## Propagates a neutrino of flavor i along a track defined by the track argument. Returns the entire history of propagation (distances, transition amplitudes to flavor j).

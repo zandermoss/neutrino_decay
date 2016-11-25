@@ -92,8 +92,11 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 
 	#prem solution
 
-	rho0_mass=np.dot(Um.conj().T,np.dot(MO.ProjMat(initial_flavor,myparam.numneu),Um))
-	rhof_mass=np.dot(Um.conj().T,np.dot(MO.ProjMat(final_flavor,myparam.numneu),Um))
+	p0 = MO.ProjMat(initial_flavor,myparam.numneu)
+	pf = MO.ProjMat(final_flavor,myparam.numneu)
+
+	rho0_mass=np.dot(Um.conj().T,np.dot(p0,Um))
+	rhof_mass=np.dot(Um.conj().T,np.dot(pf,Um))
 
 
 
@@ -120,6 +123,8 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	 
 	for i in range(0,len(erange)):
 		amps[i] = MO.Trace(np.dot(rhof[i],rhof_mass))
+#		print "AMPS: ",MO.Trace(np.dot(rhof[i,:,:],rhof_mass))
+		print amps	
 
 	return amps
 
