@@ -36,10 +36,9 @@ class HamGen(object):
 	# the hamiltonian must be explicitly updated at each propegation step using the 
 	# update() function.
 
-	def __init__(self,param,Um,Ug,track,myeig_dcy=None,splines=None):
+	def __init__(self,param,Um,tau,track,splines=None):
 		self.param=param
 		self.ugen=SU.SUGen(param)
-		self.eig_dcy=myeig_dcy
 		self.splines=splines
 		self.doupdate=False
 
@@ -55,10 +54,7 @@ class HamGen(object):
 		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
 		
 		#Check if matter effects or decay is present
-		if self.eig_dcy==None:
-			decay=False
-		else:
-			decay=True
+		decay=True
 
 
 		if self.splines==None:
@@ -91,8 +87,6 @@ class HamGen(object):
 		
 		#Fill in mass and decay eigenvalues
 		Md=np.zeros([self.param.numneu,self.param.numneu],complex)
-		if decay:	
-			Gd=np.zeros([self.param.numneu,self.param.numneu],complex)
 
 		#Add interaction term
 		if (matter)&(vmatter==False):
