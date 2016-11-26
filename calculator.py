@@ -68,7 +68,7 @@ n_calc=int(sys.argv[3])
 
 
 if (calcvar=="energy"):
-	valvec=np.logspace(-1,6,n_calc)
+	valvec=np.logspace(-1,2,n_calc)
 
 elif (calcvar=="theta"):
 	valvec=np.linspace(0,2*pi,n_calc)
@@ -117,5 +117,5 @@ for e in range(0,len(valvec)):
 
 print "NV: ",num_vec
 
-np.savez(calcvar+"_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
+np.savez(calcvar+"_schrodinger_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
 
