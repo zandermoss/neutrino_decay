@@ -23,6 +23,8 @@ plt.rc('font', size=16)
 
 param=pc.PhysicsConstants()
 
+#regen=False
+dcy_switch=True
 
 nu_mass = np.zeros(param.numneu)
 nu_mass[0] = 0.0
@@ -37,13 +39,23 @@ pg.lamb[0,3] = math.pi/4.0
 pg.lamb[1,3] = math.pi/4.0
 pg.lamb[2,3] = math.pi/4.0
 
+dcy_channels = np.zeros((param.numneu,param.numneu),dtype=bool)
+dcy_channels[0,1]=True
+dcy_channels[0,2]=True
+dcy_channels[0,3]=True
+dcy_channels[1,2]=True
+dcy_channels[1,3]=True
+dcy_channels[2,3]=True
+
+lifetime = 1.0e+3
+
 tau = np.zeros((param.numneu,param.numneu))
-tau[0,1]=1.0e+30
-tau[0,2]=1.0e+30
-tau[0,3]=1.0e+30
-tau[1,2]=1.0e+30
-tau[1,3]=1.0e+30
-tau[2,3]=1.0e+30
+tau[0,1]=lifetime
+tau[0,2]=lifetime
+tau[0,3]=lifetime
+tau[1,2]=lifetime
+tau[1,3]=lifetime
+tau[2,3]=lifetime
 
 
 
@@ -63,7 +75,8 @@ pi=3.141592
 
 calcvar=sys.argv[1]
 mattervar=sys.argv[2]
-n_calc=int(sys.argv[3])
+regenarg = sys.argv[3]
+n_calc=int(sys.argv[4])
 
 
 
@@ -75,9 +88,11 @@ elif (calcvar=="theta"):
 else:
 	print "BAD INPUT: NEED TO SELECT MODE"
 
+if(regenarg=="regen"):
+	regen=True
+elif(regenarg=="noregen"):
+	regen=False
 
-
-dcy_switch=True
 
 if(mattervar=="matter"):
 	mtr_switch=True
@@ -114,8 +129,8 @@ num_vec=np.zeros(len(valvec))
 
 E = valvec*param.TeV
 print "E: ",E
-num_vec = sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,tau,param,pg,nu_mass,phi_mass)
+num_vec = sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen)
 print "NV: ",num_vec
 
-np.savez(calcvar+"_von_neumann_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
+np.savez(calcvar+"_"+regenarg+"_von_neumann_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
 

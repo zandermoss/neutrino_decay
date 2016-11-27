@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import UnivariateSpline
 from numpy import linalg as LA
 
+import MatrixOps as MO
 import PhysConst as PC
 import SUGen as SU
 import random
@@ -36,13 +37,30 @@ class HamGen(object):
 	# the hamiltonian must be explicitly updated at each propegation step using the 
 	# update() function.
 
-	def __init__(self,param,Um,tau,nu_mass,phi_mass,track,decay,splines=None):
+	def Pstar(self,m_nu,m_phi,i,j):
+		return ps
+
+	def __init__(self,param,Um,tau,nu_mass,phi_mass,track,decay,dcy_channels,splines=None,regen=False):
 		self.param=param
 		self.ugen=SU.SUGen(param)
 		self.splines=splines
 		self.doupdate=False
 		self.Um = Um
-
+		self.tau=tau
+		self.regen = regen
+	
+		#Sanity check on particle masses and pstar matrix precalculation	
+		self.pstar = np.zeros([self.param.numneu,self.param.numneu])
+		for i in range(0,self.param.numneu):
+			for j in range(i+1,self.param.numneu):
+				if (dcy_channels[i,j] == True):
+					if nu_mass[i] + phi_mass > nu_mass[j]:
+						print "BAD: masses don't match up!"
+					else:
+						self.pstar[i,j] =(1.0/(2.0*nu_mass[j]))*((nu_mass[j]**2 - (nu_mass[i] + phi_mass)**2)*(nu_mass[j]**2 - (nu_mass[i] - phi_mass)**2))
+		self.m_nu = nu_mass
+		self.m_phi = phi_mass	
+		self.dcy_channels = dcy_channels
 
 		#Randomized self.parameters to generate conjugation matrices
 		#We will work in the flavor basis, so Um and Ug map from 
@@ -115,6 +133,8 @@ class HamGen(object):
 			for ei in range(0,len(erange)):
 				self.H0[ei] += np.dot(Um.conj().T,np.dot(self.Int,Um))	
 
+				
+			
 
 	## This function updates the propagation hamiltonian as the earth radius changes.
 	# Uses the track object to compute earth radius from fractional progress along 
@@ -165,3 +185,34 @@ class HamGen(object):
 	
 	def GetGamma(self):
 		return self.Gamma
+
+	def Regen(self,rho):
+		erange = self.track.erange
+		R = np.zeros([len(erange),self.param.numneu,self.param.numneu],complex)
+		if (self.regen==True):
+	
+			for ei in range(0,len(erange)):
+				Ef = erange[ei]
+	
+				for i in range(0,self.param.numneu):
+					p_i = MO.ProjMat(i,self.param.numneu)
+					for j in range(i+1,self.param.numneu):
+						p_j = MO.ProjMat(j,self.param.numneu)
+						if (self.dcy_channels[i,j]==True):
+							boost = Ef/self.pstar[i,j]
+							E0 = boost*self.m_nu[j]
+#							print "(I,J): (",i,",",j,")"
+#							print "BOOST: ",boost
+#							print "MJ: ", self.m_nu[j]
+#							print "MI: ", self.m_nu[i]
+#							print "MPhi: ", self.m_phi
+#							print "PSTAR: ",self.pstar[i,j]
+#							print "EF: ",Ef,"  E0: ",E0
+							E0_arg = (np.abs(erange-E0)).argmin()
+#							print "EOARG: ", E0_arg
+							if(E0_arg==ei):
+								pass
+							else:
+								R[ei,:,:] += MO.Trace(np.dot(rho[E0_arg,:,:],p_j)) * (1.0/(boost*self.tau[i,j])) * p_i 
+		#					print R[ei,:,:]
+		return R

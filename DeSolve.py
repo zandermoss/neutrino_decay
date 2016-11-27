@@ -73,9 +73,9 @@ class DeSolve(object):
 		#H=self.hamgen.H
 
 		drho_dt = np.zeros(self.rhoshapes,complex)
-
+		R = self.hamgen.Regen(rho)
 		for ei in range(0,rho.shape[0]):
-			drho_dt[ei,:,:] = -1.0j*MO.Comm(H0[ei,:,:],rho[ei,:,:]) - 0.5*MO.AntiComm(Gamma[ei,:,:],rho[ei,:,:])
+			drho_dt[ei,:,:] = -1.0j*MO.Comm(H0[ei,:,:],rho[ei,:,:]) - 0.5*MO.AntiComm(Gamma[ei,:,:],rho[ei,:,:]) + R[ei,:,:]
 		drho_dt.shape = self.shapeprod
 
 		return drho_dt

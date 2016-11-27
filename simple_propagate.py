@@ -48,7 +48,7 @@ resolution=10.0**4/6371.0
 # @return the transition amplitude.
 
 def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
-                           erange,theta,tau,myparam,pmnsgen,nu_mass,phi_mass):
+                           erange,theta,dcy_channels,tau,myparam,pmnsgen,nu_mass,phi_mass,regen):
 
 
 	""" 
@@ -85,7 +85,7 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	matter, and the 4th is a simple vacuum propagation.
 	"""
 
-	vhamgen=HamGen.HamGen(myparam,Um,tau,nu_mass,phi_mass,track,True,splines)
+	vhamgen=HamGen.HamGen(myparam,Um,tau,nu_mass,phi_mass,track,True,dcy_channels,splines,regen)
 #	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,splines)
 #	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,None)
 	#vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,None)
