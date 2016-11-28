@@ -129,7 +129,7 @@ num_vec=np.zeros(len(valvec))
 
 E = valvec*param.TeV
 print "E: ",E
-num_vec = sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen)
+num_vec = sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
 print "NV: ",num_vec
 
 np.savez(calcvar+"_"+regenarg+"_von_neumann_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)

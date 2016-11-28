@@ -61,7 +61,7 @@ def MyTrace(A):
 # @return the transition amplitude.
 
 def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
-                           erange,theta,dcy_channels,tau,myparam,pmnsgen,nu_mass,phi_mass,regen):
+                           erange,theta,dcy_channels,tau,myparam,pmnsgen,nu_mass,phi_mass,regen,matter):
 
 
 	""" 
@@ -98,7 +98,7 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	matter, and the 4th is a simple vacuum propagation.
 	"""
 
-	vhamgen=HamGen.HamGen(myparam,Um,tau,nu_mass,phi_mass,track,True,dcy_channels,splines,regen)
+	vhamgen=HamGen.HamGen(myparam,Um,tau,nu_mass,phi_mass,track,True,dcy_channels,splines,regen,matter)
 #	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,splines)
 #	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,None)
 	#vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,None)

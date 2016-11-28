@@ -38,7 +38,7 @@ class HamGen(object):
 	# update() function.
 
 
-	def __init__(self,param,Um,tau,nu_mass,phi_mass,track,decay,dcy_channels,splines=None,regen=False):
+	def __init__(self,param,Um,tau,nu_mass,phi_mass,track,decay,dcy_channels,splines=None,regen=False,matter=True):
 		self.param=param
 		self.ugen=SU.SUGen(param)
 		self.splines=splines
@@ -46,6 +46,12 @@ class HamGen(object):
 		self.Um = Um
 		self.tau=tau
 		self.regen = regen
+		self.matter = matter
+
+
+		self.yespline=splines.GetYe()
+		self.dspline=splines.GetEarth()
+
 	
 		#Sanity check on particle masses and pstar matrix precalculation	
 		self.pstar = np.zeros([self.param.numneu,self.param.numneu],np.float64)
@@ -73,6 +79,7 @@ class HamGen(object):
 		
 		#Check if matter effects or decay is present
 
+		"""
 		if self.splines==None:
 			self.matter=False
 			vmatter=False
@@ -88,7 +95,7 @@ class HamGen(object):
 			self.yespline=splines.GetYe()
 			#self.dspline=splines.GetEarthLine()
 			self.dspline=splines.GetEarth()
-
+		"""
 
 		#Generate conj matrices
 		#use known mixing self.parameters for M
@@ -104,6 +111,7 @@ class HamGen(object):
 		#Fill in mass and decay eigenvalues
 		Md=np.zeros([self.param.numneu,self.param.numneu],np.complex128)
 
+		"""
 		#Add interaction term
 		if (self.matter)&(vmatter==False):
 			potential=self.splines 
@@ -112,8 +120,8 @@ class HamGen(object):
 				if flv==0:
 					self.Int[flv,flv]=potential/2
 				else:
-					self.Int[flv,flv]=-potential/2
-
+						self.Int[flv,flv]=-potential/2
+		"""
 
 		for ei in range(0,len(erange)):
 			for i in range(0,self.param.numneu):
