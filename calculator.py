@@ -47,7 +47,7 @@ dcy_channels[1,2]=True
 dcy_channels[1,3]=True
 dcy_channels[2,3]=True
 
-lifetime = 1.0e+3
+lifetime = 1.0e+30
 
 tau = np.zeros((param.numneu,param.numneu),dtype=np.float64)
 tau[0,1]=lifetime
@@ -132,5 +132,5 @@ print "E: ",E
 num_vec = sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
 print "NV: ",num_vec
 
-np.savez(calcvar+"_"+regenarg+"_von_neumann_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
+np.savez(calcvar+"_"+regenarg+"_von_neumann_spline_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
 

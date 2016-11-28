@@ -84,13 +84,13 @@ class DeSolve(object):
 		rho.shape = self.rhoshapes
 
 		r = MO.r(t, self.norm, self.theta)
-		r_arg = MO.find_nearest(self.xsteps,r)
+		#r_arg = MO.find_nearest(self.xsteps,r)
 
 
-		#ye =self.hamgen.yespline(r)
-		ye =self.yevals[r_arg]
-		#density=self.hamgen.dspline(r) #g/cm^3
-		density =self.dvals[r_arg]
+		ye =self.hamgen.yespline(r)
+		#ye =self.yevals[r_arg]
+		density=self.hamgen.dspline(r) #g/cm^3
+		#density =self.dvals[r_arg]
 
 
 		H0=self.hamgen.Hstart
