@@ -32,7 +32,7 @@ class SUGen(object):
 	def __init__(self,param):
 		self.param=param
 
-		self.lamb=np.zeros([self.param.numneu,self.param.numneu],complex)
+		self.lamb=np.zeros([self.param.numneu,self.param.numneu],np.complex128)
 
 	## Samples a random lambda matrix.
 	# Constructs the lambda matrix by sampling phases and angles with
@@ -79,7 +79,7 @@ class SUGen(object):
 	
 	def matrix_gen(self):
 		d=self.param.numneu
-		U=np.identity(d,complex)
+		U=np.identity(d,np.complex128)
 		m=0
 		while (m<=d-2):
 			n=m+1
@@ -110,7 +110,7 @@ class SUGen(object):
 		the appropriate positions.
 		"""
 
-		R=np.identity(self.param.numneu,complex)
+		R=np.identity(self.param.numneu,np.complex128)
 		lcos=cmath.cos(self.lamb[m,n])
 		lsin=cmath.sin(self.lamb[m,n])
 
@@ -130,10 +130,10 @@ class SUGen(object):
 		"""
 		Now, we generate the phasing-type matrices used in 
 		the construction. We again modify the identity, 
-		but this time with complex phases.
+		but this time with np.complex128 phases.
 		"""
 	
-		P=np.identity(self.param.numneu,complex)
+		P=np.identity(self.param.numneu,np.complex128)
 		lpphase=cmath.exp(1.0j*self.lamb[n,m])
 		lmphase=cmath.exp(-1.0j*self.lamb[n,m])
 

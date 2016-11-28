@@ -34,6 +34,19 @@ resolution=10.0**4/6371.0
 
 
 
+def MyProjMat(i,dim):
+    p = np.zeros((dim,dim),np.complex128)
+    p[i,i]=1.0
+    return p
+
+def MyTrace(A):
+    tr=0.0
+    for i in range(0,A.shape[0]):
+        tr+= A[i,i]
+    return tr
+
+
+
 ## A function used to calculate the amplitude for transition between two flavors.
 # this function combines the different pieces of NuSHEEP, and performs a calculation
 # of transition amplitude from initial_flavor to final_flavor.
@@ -92,15 +105,15 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 
 	#prem solution
 
-	p0 = MO.ProjMat(initial_flavor,myparam.numneu)
-	pf = MO.ProjMat(final_flavor,myparam.numneu)
+	p0 = MyProjMat(initial_flavor,myparam.numneu)
+	pf = MyProjMat(final_flavor,myparam.numneu)
 
 	rho0_mass=np.dot(Um.conj().T,np.dot(p0,Um))
 	rhof_mass=np.dot(Um.conj().T,np.dot(pf,Um))
 
 
 
-	rho0=np.zeros([len(erange),myparam.numneu,myparam.numneu],complex)
+	rho0=np.zeros([len(erange),myparam.numneu,myparam.numneu],np.complex128)
 	for ei in range(0,len(erange)):
 		rho0[ei,:,:] = rho0_mass	
 
@@ -122,7 +135,7 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	amps= np.zeros([len(erange)])
 	 
 	for i in range(0,len(erange)):
-		amps[i] = np.real(MO.Trace(np.dot(rhof[i],rhof_mass)))
+		amps[i] = np.real(MyTrace(np.dot(rhof[i],rhof_mass)))
 
 	return amps
 

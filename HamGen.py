@@ -37,8 +37,6 @@ class HamGen(object):
 	# the hamiltonian must be explicitly updated at each propegation step using the 
 	# update() function.
 
-	def Pstar(self,m_nu,m_phi,i,j):
-		return ps
 
 	def __init__(self,param,Um,tau,nu_mass,phi_mass,track,decay,dcy_channels,splines=None,regen=False):
 		self.param=param
@@ -50,7 +48,7 @@ class HamGen(object):
 		self.regen = regen
 	
 		#Sanity check on particle masses and pstar matrix precalculation	
-		self.pstar = np.zeros([self.param.numneu,self.param.numneu])
+		self.pstar = np.zeros([self.param.numneu,self.param.numneu],np.float64)
 		for i in range(0,self.param.numneu):
 			for j in range(i+1,self.param.numneu):
 				if (dcy_channels[i,j] == True):
@@ -69,23 +67,23 @@ class HamGen(object):
 		#Ugen=PC.PhysicsConstants()
 		self.track=track
 		erange = self.track.erange
-		self.H0=np.zeros([len(erange),self.param.numneu,self.param.numneu],complex)	
-		self.Gamma=np.zeros([len(erange),self.param.numneu,self.param.numneu],complex)	
-		self.Int=np.zeros([self.param.numneu,self.param.numneu],complex)
+		self.Hstart=np.zeros([len(erange),self.param.numneu,self.param.numneu],np.complex128)	
+		self.Gamma=np.zeros([len(erange),self.param.numneu,self.param.numneu],np.complex128)	
+		self.Int=np.zeros([self.param.numneu,self.param.numneu],np.complex128)
 		
 		#Check if matter effects or decay is present
 
 		if self.splines==None:
-			matter=False
+			self.matter=False
 			vmatter=False
 			self.doupdate=False
 		elif type(self.splines)==float:
-			matter=True
+			self.matter=True
 			vmatter=False
 			self.doupdate=False
 		else:
 			self.doupdate=True
-			matter=True
+			self.matter=True
 			vmatter=True
 			self.yespline=splines.GetYe()
 			#self.dspline=splines.GetEarthLine()
@@ -104,10 +102,10 @@ class HamGen(object):
 		#Ug=MT.calcU(Ugen)
 		
 		#Fill in mass and decay eigenvalues
-		Md=np.zeros([self.param.numneu,self.param.numneu],complex)
+		Md=np.zeros([self.param.numneu,self.param.numneu],np.complex128)
 
 		#Add interaction term
-		if (matter)&(vmatter==False):
+		if (self.matter)&(vmatter==False):
 			potential=self.splines 
 			#assume electron density is neutron density. This is roughly true.
 			for flv in range(0,3):
@@ -120,7 +118,7 @@ class HamGen(object):
 		for ei in range(0,len(erange)):
 			for i in range(0,self.param.numneu):
 				Md[i,i]= self.param.dm2[1,i+1]/(2*erange[ei])
-			self.H0[ei,:,:]=Md
+			self.Hstart[ei,:,:]=Md
 
 
 		if decay:	
@@ -129,9 +127,9 @@ class HamGen(object):
 					for j in range(i+1,self.param.numneu):
 						self.Gamma[ei,i,j] = (erange[ei]**(self.param.decay_power))*(nu_mass[j]/tau[i,j])
 
-		if matter:			
-			for ei in range(0,len(erange)):
-				self.H0[ei] += np.dot(Um.conj().T,np.dot(self.Int,Um))	
+#		if matter:			
+#			for ei in range(0,len(erange)):
+#				self.H0[ei] += np.dot(Um.conj().T,np.dot(self.Int,Um))	
 
 				
 			
@@ -148,71 +146,3 @@ class HamGen(object):
 	# @return an updated hamiltonian matrix (2d np array)
 
 
-	def H0_Update(self,x):
-		if self.doupdate==True:
-			r=self.track.r(x)
-			
-			ye=self.yespline(r)
-			density=self.dspline(r) #g/cm^3
-			nd=density*self.param.gr/(self.param.GeV*self.param.proton_mass) #convert to #proton/cm^3
-			npotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*(1-ye) #convert cm to 1/eV
-
-			ppotential=math.sqrt(2)*self.param.GF*(self.param.cm)**(-3)*nd*ye #convert cm to 1/eV
-			#print x*self.track.l*self.param.km, ",",npotential
-	
-			for flv in range(0,3):
-				#assume electron density is neutron density. This is roughly true.
-				if flv==0:
-					self.Int[flv,flv]=ppotential-0.5*npotential
-				else:
-					self.Int[flv,flv]=-0.5*npotential
-
-			ret_array=np.zeros([len(self.track.erange),self.param.numneu,self.param.numneu],complex)	
-		
-			MassInt = np.dot(self.Um.conj().T,np.dot(self.Int,self.Um))
-
-			if (self.param.neutype=='antineutrino'):
-				for ei in range(0,len(self.track.erange)):
-					ret_array[ei,:,:] = self.H0[ei,:,:]+MassInt*-1.0
-
-			else:
-				for ei in range(0,len(self.track.erange)):
-					ret_array[ei,:,:] = self.H0[ei,:,:]+MassInt
-
-			return ret_array
-		else:
-			return self.H0
-	
-	def GetGamma(self):
-		return self.Gamma
-
-	def Regen(self,rho):
-		erange = self.track.erange
-		R = np.zeros([len(erange),self.param.numneu,self.param.numneu],complex)
-		if (self.regen==True):
-	
-			for ei in range(0,len(erange)):
-				Ef = erange[ei]
-	
-				for i in range(0,self.param.numneu):
-					p_i = MO.ProjMat(i,self.param.numneu)
-					for j in range(i+1,self.param.numneu):
-						p_j = MO.ProjMat(j,self.param.numneu)
-						if (self.dcy_channels[i,j]==True):
-							boost = Ef/self.pstar[i,j]
-							E0 = boost*self.m_nu[j]
-#							print "(I,J): (",i,",",j,")"
-#							print "BOOST: ",boost
-#							print "MJ: ", self.m_nu[j]
-#							print "MI: ", self.m_nu[i]
-#							print "MPhi: ", self.m_phi
-#							print "PSTAR: ",self.pstar[i,j]
-#							print "EF: ",Ef,"  E0: ",E0
-							E0_arg = (np.abs(erange-E0)).argmin()
-#							print "EOARG: ", E0_arg
-							if(E0_arg==ei):
-								pass
-							else:
-								R[ei,:,:] += MO.Trace(np.dot(rho[E0_arg,:,:],p_j)) * (1.0/(boost*self.tau[i,j])) * p_i 
-		#					print R[ei,:,:]
-		return R

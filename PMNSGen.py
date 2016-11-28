@@ -33,7 +33,7 @@ class PMNSGen(SUGen.SUGen):
 	def matrix_gen(self):
 		d=self.param.numneu
 		pmns_pairs=[[0,1],[0,2],[1,2]]
-		U=np.identity(d,complex)
+		U=np.identity(d,np.complex128)
 		m=0
 		while (m<=d-2):
 			n=m+1

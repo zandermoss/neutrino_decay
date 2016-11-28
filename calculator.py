@@ -26,7 +26,7 @@ param=pc.PhysicsConstants()
 #regen=False
 dcy_switch=True
 
-nu_mass = np.zeros(param.numneu)
+nu_mass = np.zeros(param.numneu, dtype=np.float64)
 nu_mass[0] = 0.0
 nu_mass[1] = math.sqrt(param.dm21sq)
 nu_mass[2] = math.sqrt(param.dm31sq)
@@ -39,7 +39,7 @@ pg.lamb[0,3] = math.pi/4.0
 pg.lamb[1,3] = math.pi/4.0
 pg.lamb[2,3] = math.pi/4.0
 
-dcy_channels = np.zeros((param.numneu,param.numneu),dtype=bool)
+dcy_channels = np.zeros((param.numneu,param.numneu),dtype=np.uint8)
 dcy_channels[0,1]=True
 dcy_channels[0,2]=True
 dcy_channels[0,3]=True
@@ -49,7 +49,7 @@ dcy_channels[2,3]=True
 
 lifetime = 1.0e+3
 
-tau = np.zeros((param.numneu,param.numneu))
+tau = np.zeros((param.numneu,param.numneu),dtype=np.float64)
 tau[0,1]=lifetime
 tau[0,2]=lifetime
 tau[0,3]=lifetime

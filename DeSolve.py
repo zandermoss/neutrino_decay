@@ -4,6 +4,7 @@ import scipy as sp
 from scipy.integrate import ode
 from scipy.integrate import complex_ode
 from scipy.integrate import odeint
+from scipy.interpolate import UnivariateSpline
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 import MatrixOps as MO
@@ -15,6 +16,7 @@ import random
 import cmath
 import math
 import Splines
+
 
 
 ## DeSolve implements a complex ode solver algorithm from scipy.integrate
@@ -41,6 +43,18 @@ class DeSolve(object):
 		self.param=param
 		self.rhoshapes=[0,0,0]
 		self.shapeprod=0.0
+		self.track = self.hamgen.track 
+		self.theta = self.track.theta
+
+		self.length = self.hamgen.track.l
+		self.res = 1000
+		self.xsteps = np.linspace(0,1.0,self.res)
+		self.yevals  = np.zeros(len(self.xsteps))
+		self.dvals  = np.zeros(len(self.xsteps))
+		for i in range(0,len(self.xsteps)):
+			self.yevals[i] = self.hamgen.yespline(self.xsteps[i])
+			self.dvals[i] = self.hamgen.dspline(self.xsteps[i])
+	
 
 		#Set up the solver
 		self.norm=0
@@ -48,14 +62,13 @@ class DeSolve(object):
 		#self.r=complex_ode(self.func).set_integrator('dopri5',rtol=1e-6)
 		self.r=complex_ode(self.func).set_integrator('dopri5',rtol=1e-6,nsteps=100000)
 
+		if (param.neutype=='neutrino'):
+			self.anti=False	
+		elif (param.neutype=='antineutrino'):
+			self.anti=True
+		else:
+			print "BAD NEUTRINO TYPE"
 
-		#Generate basis vectors
-		self.b=[]
-		for x in range(0,param.numneu):
-			self.b.append(np.zeros(param.numneu))
-			self.b[x][x]=1.0
-
-		self.splines=Splines.Spline()
 
 		#---------------------
 
@@ -66,16 +79,25 @@ class DeSolve(object):
 	#par y deprecated!
 	#return the RHS of the schrodinger equation divided by i.
 	def func(self,t,rho):
-		rho.shape = self.rhoshapes
-		H0=self.hamgen.H0_Update(t/self.norm)
-		Gamma = self.hamgen.GetGamma()
 		#H=self.hamgen.update(0.5)
 		#H=self.hamgen.H
+		rho.shape = self.rhoshapes
 
-		drho_dt = np.zeros(self.rhoshapes,complex)
-		R = self.hamgen.Regen(rho)
-		for ei in range(0,rho.shape[0]):
-			drho_dt[ei,:,:] = -1.0j*MO.Comm(H0[ei,:,:],rho[ei,:,:]) - 0.5*MO.AntiComm(Gamma[ei,:,:],rho[ei,:,:]) + R[ei,:,:]
+		r = MO.r(t, self.norm, self.theta)
+		r_arg = MO.find_nearest(self.xsteps,r)
+
+
+		#ye =self.hamgen.yespline(r)
+		ye =self.yevals[r_arg]
+		#density=self.hamgen.dspline(r) #g/cm^3
+		density =self.dvals[r_arg]
+
+
+
+		H0=MO.H0_Update(ye, density, self.hamgen.matter, self.param.numneu, self.hamgen.Um, self.anti, self.track.erange, self.hamgen.Hstart)
+		R = MO.Regen(rho, self.track.erange, self.param.numneu, self.hamgen.dcy_channels, self.hamgen.pstar, self.hamgen.m_nu, self.hamgen.m_phi, self.hamgen.tau)
+	
+		drho_dt = MO.DrhoDt(rho, H0, R, self.hamgen.Gamma)	
 		drho_dt.shape = self.shapeprod
 
 		return drho_dt
