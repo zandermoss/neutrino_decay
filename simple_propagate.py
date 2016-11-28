@@ -116,7 +116,6 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	The transition ampliude from initial_flavor to final_flavor is calculated using
 	the DeSolve prop function. This amplitude is then returned to the calling script.
 	"""
-
 	rhof=desolve.prop(track,rho0)
 
 	amps= np.zeros([len(erange)])

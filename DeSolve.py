@@ -67,6 +67,7 @@ class DeSolve(object):
 	#return the RHS of the schrodinger equation divided by i.
 	def func(self,t,rho):
 		rho.shape = self.rhoshapes
+
 		H0=self.hamgen.H0_Update(t/self.norm)
 		Gamma = self.hamgen.GetGamma()
 		#H=self.hamgen.update(0.5)
