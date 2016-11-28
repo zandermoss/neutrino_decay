@@ -37,13 +37,14 @@ pg.lamb[0,3] = math.pi/4.0
 pg.lamb[1,3] = math.pi/4.0
 pg.lamb[2,3] = math.pi/4.0
 
+lifetime = 1.0e+30
 tau = np.zeros((param.numneu,param.numneu))
-tau[0,1]=1.0e+30
-tau[0,2]=1.0e+30
-tau[0,3]=1.0e+30
-tau[1,2]=1.0e+30
-tau[1,3]=1.0e+30
-tau[2,3]=1.0e+30
+tau[0,1]=lifetime
+tau[0,2]=lifetime
+tau[0,3]=lifetime
+tau[1,2]=lifetime
+tau[1,3]=lifetime
+tau[2,3]=lifetime
 
 
 
