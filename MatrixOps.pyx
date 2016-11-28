@@ -82,7 +82,7 @@ def Regen(np.ndarray[DTYPE_t, ndim=3] rho, np.ndarray[RDTYPE_t, ndim=1] erange, 
 
 
 
-def H0_Update(DTYPE_t ye, DTYPE_t density, BDTYPE_t matter, int numneu, np.ndarray[DTYPE_t, ndim=2] Um, BDTYPE_t anti, np.ndarray[RDTYPE_t, ndim=1] erange, np.ndarray[DTYPE_t, ndim=3] Hstart):
+def H0_Update(DTYPE_t ye, DTYPE_t density, int numneu, np.ndarray[DTYPE_t, ndim=2] Um, BDTYPE_t anti, np.ndarray[RDTYPE_t, ndim=1] erange, np.ndarray[DTYPE_t, ndim=3] Hstart):
 	cdef DTYPE_t meter = 5.06773093741e6
 	cdef DTYPE_t cm = 1.0e-2*meter
 	cdef DTYPE_t kg = 5.62e35 
@@ -94,38 +94,33 @@ def H0_Update(DTYPE_t ye, DTYPE_t density, BDTYPE_t matter, int numneu, np.ndarr
 	
 	cdef np.ndarray[DTYPE_t, ndim=2] Int = np.zeros((numneu,numneu), dtype = DTYPE)
 	cdef np.ndarray[DTYPE_t, ndim=3] ret_array = np.zeros((erange.shape[0],numneu,numneu), dtype=DTYPE)
-	cdef np.ndarray[DTYPE_t, ndim=2] MassInt = np.dot(Um.conj().T,np.dot(Int,Um))
-
+	cdef np.ndarray[DTYPE_t, ndim=2] MassInt 
 	cdef DTYPE_t nd
 	cdef DTYPE_t npotential
 	cdef DTYPE_t ppotential
 
-	if matter==True:
+	nd=density*gr/(GeV*proton_mass) #convert to #proton/cm^3
+	npotential=sqrt2*GF*(cm)**(-3)*nd*(1-ye) #convert cm to 1/eV
+	ppotential=sqrt2*GF*(cm)**(-3)*nd*ye #convert cm to 1/eV
 
-		nd=density*gr/(GeV*proton_mass) #convert to #proton/cm^3
-		npotential=sqrt2*GF*(cm)**(-3)*nd*(1-ye) #convert cm to 1/eV
-		ppotential=sqrt2*GF*(cm)**(-3)*nd*ye #convert cm to 1/eV
-
-		for flv in range(0,3):
-			#assume electron density is neutron density. This is roughly true.
-			if flv==0:
-				Int[flv,flv]=ppotential-0.5*npotential
-			else:
-				Int[flv,flv]=-0.5*npotential
-
-
-		if (anti==True):
-			for ei in range(0,erange.shape[0]):
-				ret_array[ei,:,:] = Hstart[ei,:,:]+MassInt*-1.0
-
+	for flv in range(0,3):
+		#assume electron density is neutron density. This is roughly true.
+		if flv==0:
+			Int[flv,flv]=ppotential-0.5*npotential
 		else:
-			for ei in range(0,erange.shape[0]):
-				ret_array[ei,:,:] = Hstart[ei,:,:]+MassInt
+			Int[flv,flv]=-0.5*npotential
 
-		return ret_array
+	MassInt = np.dot(Um.conj().T,np.dot(Int,Um))
+
+	if (anti==True):
+		for ei in range(0,erange.shape[0]):
+			ret_array[ei,:,:] = Hstart[ei,:,:]+MassInt*-1.0
+
 	else:
-		return Hstart
+		for ei in range(0,erange.shape[0]):
+			ret_array[ei,:,:] = Hstart[ei,:,:]+MassInt
 
+	return ret_array
 
 
 def DrhoDt(np.ndarray[DTYPE_t, ndim=3] rho, np.ndarray[DTYPE_t, ndim=3] H0, np.ndarray[DTYPE_t, ndim=3] R, np.ndarray[DTYPE_t, ndim=3] Gamma):

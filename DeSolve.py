@@ -93,9 +93,8 @@ class DeSolve(object):
 		#density =self.dvals[r_arg]
 
 
-		H0=self.hamgen.Hstart
 		if (self.hamgen.matter==True):
-			H0=MO.H0_Update(ye, density, self.hamgen.matter, self.param.numneu, self.hamgen.Um, self.anti, self.track.erange, self.hamgen.Hstart)
+			H0=MO.H0_Update(ye, density, self.param.numneu, self.hamgen.Um, self.anti, self.track.erange, self.hamgen.Hstart)
 
 		R = np.zeros(self.rhoshapes, np.complex128)
 		if (self.hamgen.regen==True):
