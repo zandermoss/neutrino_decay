@@ -73,8 +73,9 @@ class PMNSGen(SUGen.SUGen):
 				if ([n,m] in pmns_pairs):
 					self.lamb[n,m]=-1.0*self.thetas[pmns_pairs.index([n,m])]
 				else:
-					self.lamb[n,m]=-1.0*self.sample_angle(n,m)
-				self.lamb[m,n]=self.sample_phase()
+					pass
+					#self.lamb[n,m]=-1.0*self.sample_angle(n,m)
+				#self.lamb[m,n]=self.sample_phase()
 
 				n+=1
 			m+=1
