@@ -72,11 +72,15 @@ def Regen(np.ndarray[DTYPE_t, ndim=3] rho, np.ndarray[RDTYPE_t, ndim=1] erange, 
 #				   print "PSTAR: ",self.pstar[i,j]
 #				   print "EF: ",Ef,"  E0: ",E0
 					E0_arg = np.argmin(np.abs(erange-E0))
+#					print "E0: ", E0
+#					print "EMAX: ", erange[len(erange)-1]
 #				   print "EOARG: ", E0_arg
-					if(E0_arg==ei):
-						pass
-					else:
-						R[ei,:,:] += Trace(np.dot(rho[E0_arg,:,:],p_j)) * (1.0/(boost*tau[i,j])) * p_i
+#					if(E0_arg==ei):
+#						pass
+
+#				if(E0_arg!=ei):
+				print "E: ",ei," I,J: ",i,j, "RATE: ", (1.0/(boost*tau[i,j])) 
+				R[ei,:,:] += Trace(np.dot(rho[E0_arg,:,:],p_j)) * (1.0/(boost*tau[i,j])) * p_i
 #				   print R[ei,:,:]
 	return R
 

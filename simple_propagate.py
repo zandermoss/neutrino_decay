@@ -105,6 +105,13 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 
 	#prem solution
 
+	projmats = []
+	for i in range(0,myparam.numneu):
+		pm = MyProjMat(i,myparam.numneu)
+		pm_mass = np.dot(Um.conj().T,np.dot(pm,Um))
+		projmats.append(pm_mass)
+
+
 	p0 = MyProjMat(initial_flavor,myparam.numneu)
 	pf = MyProjMat(final_flavor,myparam.numneu)
 
@@ -133,11 +140,16 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 	rhof=desolve.prop(track,rho0)
 
 	amps= np.zeros([len(erange)])
+	sumamps= np.zeros([len(erange)])
 	 
 	for i in range(0,len(erange)):
 		amps[i] = np.real(MyTrace(np.dot(rhof[i],rhof_mass)))
 
-	return amps
+	for i in range(0,len(erange)):
+		for j in range(0,myparam.numneu):
+			sumamps[i] += np.real(MyTrace(np.dot(rhof[i],projmats[j])))
+
+	return amps, sumamps
 
 #def PropagationHistory(initial_flavor,final_flavor,
 #                           energy,theta,myparam,pmnsgen,ugen,eig_dcy):

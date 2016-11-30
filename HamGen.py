@@ -133,7 +133,10 @@ class HamGen(object):
 			for ei in range(0,len(erange)):
 				for i in range(0,self.param.numneu):
 					for j in range(i+1,self.param.numneu):
-						self.Gamma[ei,i,j] = (erange[ei]**(self.param.decay_power))*(nu_mass[j]/tau[i,j])
+						if (self.dcy_channels[i,j]==True):
+							print "EI,I,J: ",ei, i, j
+							print "DCYRATE: ", (erange[ei]**(self.param.decay_power))*(nu_mass[j]/tau[i,j]) 
+							self.Gamma[ei,j,j] += (erange[ei]**(self.param.decay_power))*(nu_mass[j]/tau[i,j])
 
 #		if matter:			
 #			for ei in range(0,len(erange)):

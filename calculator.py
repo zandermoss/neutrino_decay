@@ -43,19 +43,19 @@ dcy_channels = np.zeros((param.numneu,param.numneu),dtype=np.uint8)
 dcy_channels[0,1]=True
 dcy_channels[0,2]=True
 dcy_channels[0,3]=True
-dcy_channels[1,2]=True
-dcy_channels[1,3]=True
-dcy_channels[2,3]=True
+dcy_channels[1,2]=False
+dcy_channels[1,3]=False
+dcy_channels[2,3]=False
 
-lifetime = 1.0e+30
+lifetime = 1.0e+2
 
 tau = np.zeros((param.numneu,param.numneu),dtype=np.float64)
 tau[0,1]=lifetime
 tau[0,2]=lifetime
 tau[0,3]=lifetime
-tau[1,2]=lifetime
-tau[1,3]=lifetime
-tau[2,3]=lifetime
+#tau[1,2]=lifetime
+#tau[1,3]=lifetime
+#tau[2,3]=lifetime
 
 
 
@@ -81,7 +81,7 @@ n_calc=int(sys.argv[4])
 
 
 if (calcvar=="energy"):
-	valvec=np.logspace(-1,2,n_calc)
+	valvec=np.logspace(-1,4,n_calc)
 
 elif (calcvar=="theta"):
 	valvec=np.linspace(0,2*pi,n_calc)
@@ -129,8 +129,12 @@ num_vec=np.zeros(len(valvec))
 
 E = valvec*param.TeV
 print "E: ",E
-num_vec = sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
+amps,sumamps= sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
+
+num_vec = amps
+
 print "NV: ",num_vec
+print sumamps
 
 np.savez(calcvar+"_"+regenarg+"_von_neumann_spline_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
 
