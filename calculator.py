@@ -24,7 +24,6 @@ plt.rc('font', size=16)
 param=pc.PhysicsConstants()
 
 #regen=False
-dcy_switch=True
 
 nu_mass = np.zeros(param.numneu, dtype=np.float64)
 nu_mass[0] = 0.0
@@ -40,12 +39,12 @@ pg.lamb[1,3] = math.pi/4.0
 pg.lamb[2,3] = math.pi/4.0
 
 dcy_channels = np.zeros((param.numneu,param.numneu),dtype=np.uint8)
-dcy_channels[0,1]=True
-dcy_channels[0,2]=True
+dcy_channels[0,1]=False
+dcy_channels[0,2]=False
 dcy_channels[0,3]=True
 dcy_channels[1,2]=False
-dcy_channels[1,3]=False
-dcy_channels[2,3]=False
+dcy_channels[1,3]=True
+dcy_channels[2,3]=True
 
 lifetime = 1.0e+2
 
@@ -53,9 +52,9 @@ tau = np.zeros((param.numneu,param.numneu),dtype=np.float64)
 tau[0,1]=lifetime
 tau[0,2]=lifetime
 tau[0,3]=lifetime
-#tau[1,2]=lifetime
-#tau[1,3]=lifetime
-#tau[2,3]=lifetime
+tau[1,2]=lifetime
+tau[1,3]=lifetime
+tau[2,3]=lifetime
 
 
 
@@ -129,12 +128,12 @@ num_vec=np.zeros(len(valvec))
 
 E = valvec*param.TeV
 print "E: ",E
-amps,sumamps= sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
+amps= sp.AtmosphericNeutrinoOscillationProbability(3,3,E,param.PI,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
 
 num_vec = amps
 
 print "NV: ",num_vec
-print sumamps
+#print sumamps
 
 np.savez(calcvar+"_"+regenarg+"_von_neumann_spline_"+mattervar,_E=E,_potential=potential,_valvec=valvec,_num_vec=num_vec,_ntype=ntype)
 

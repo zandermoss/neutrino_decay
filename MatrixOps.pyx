@@ -6,12 +6,10 @@ from libc.math cimport sqrt
 from libc.math cimport cos
 from libc.math cimport pi
 
-#DTYPE = np.complex_
 DTYPE = np.complex128
 BDTYPE = np.uint8
 RDTYPE = np.float64
 ctypedef np.complex128_t DTYPE_t
-#ctypedef complex_t DTYPE_t
 ctypedef np.float64_t RDTYPE_t
 ctypedef np.uint8_t BDTYPE_t
 ctypedef np.int_t IDTYPE_t
@@ -34,16 +32,6 @@ cdef DTYPE_t Trace(np.ndarray[DTYPE_t, ndim=2] A):
 		tr+= A[i,i]
 	return tr
 
-"""
-cdef void runstuff():
-	cdef np.ndarray[DTYPE_t, ndim=2] p = np.zeros((2,2), dtype=DTYPE)
-	cdef np.ndarray[DTYPE_t, ndim=2] q = np.zeros((2,2), dtype=DTYPE)
-	p[0,0]=1.0
-	q[1,0]=1.0
-	print Comm(p,q)
-
-runstuff()
-"""
 
 def Regen(np.ndarray[DTYPE_t, ndim=3] rho, np.ndarray[RDTYPE_t, ndim=1] erange, int numneu, np.ndarray[BDTYPE_t, ndim=2] dcy_channels, np.ndarray[RDTYPE_t, ndim=2] pstar,  np.ndarray[RDTYPE_t, ndim=1] m_nu, RDTYPE_t m_phi, np.ndarray[RDTYPE_t, ndim=2] tau):
 	cdef np.ndarray[DTYPE_t, ndim=3] R = np.zeros((erange.shape[0],numneu,numneu), dtype=DTYPE)
@@ -53,6 +41,8 @@ def Regen(np.ndarray[DTYPE_t, ndim=3] rho, np.ndarray[RDTYPE_t, ndim=1] erange, 
 	cdef RDTYPE_t boost
 	cdef RDTYPE_t E0
 	cdef int E0_arg
+
+
 
 	for ei in range(0,len(erange)):
 		Ef = erange[ei]
@@ -64,23 +54,13 @@ def Regen(np.ndarray[DTYPE_t, ndim=3] rho, np.ndarray[RDTYPE_t, ndim=1] erange, 
 				if (dcy_channels[i,j]==True):
 					boost = Ef/pstar[i,j]
 					E0 = boost*m_nu[j]
-#				   print "(I,J): (",i,",",j,")"
-#				   print "BOOST: ",boost
-#				   print "MJ: ", self.m_nu[j]
-#				   print "MI: ", self.m_nu[i]
-#				   print "MPhi: ", self.m_phi
-#				   print "PSTAR: ",self.pstar[i,j]
-#				   print "EF: ",Ef,"  E0: ",E0
 					E0_arg = np.argmin(np.abs(erange-E0))
-#					print "E0: ", E0
-#					print "EMAX: ", erange[len(erange)-1]
-#				   print "EOARG: ", E0_arg
+					R[ei,:,:] += Trace(np.dot(rho[E0_arg,:,:],p_j)) * (1.0/(boost*tau[i,j])) * p_i
+#				print "E: ",ei," I,J: ",i,j, "R: ",R[ei,:,:] 
 #					if(E0_arg==ei):
 #						pass
 
 #				if(E0_arg!=ei):
-				print "E: ",ei," I,J: ",i,j, "RATE: ", (1.0/(boost*tau[i,j])) 
-				R[ei,:,:] += Trace(np.dot(rho[E0_arg,:,:],p_j)) * (1.0/(boost*tau[i,j])) * p_i
 #				   print R[ei,:,:]
 	return R
 
@@ -95,6 +75,8 @@ def H0_Update(DTYPE_t ye, DTYPE_t density, int numneu, np.ndarray[DTYPE_t, ndim=
 	cdef DTYPE_t GeV = 1.0e9	
 	cdef DTYPE_t GF = 1.16639e-23
 	cdef DTYPE_t proton_mass = 0.938272
+
+
 	
 	cdef np.ndarray[DTYPE_t, ndim=2] Int = np.zeros((numneu,numneu), dtype = DTYPE)
 	cdef np.ndarray[DTYPE_t, ndim=3] ret_array = np.zeros((erange.shape[0],numneu,numneu), dtype=DTYPE)
@@ -130,7 +112,7 @@ def H0_Update(DTYPE_t ye, DTYPE_t density, int numneu, np.ndarray[DTYPE_t, ndim=
 def DrhoDt(np.ndarray[DTYPE_t, ndim=3] rho, np.ndarray[DTYPE_t, ndim=3] H0, np.ndarray[DTYPE_t, ndim=3] R, np.ndarray[DTYPE_t, ndim=3] Gamma):
 	cdef np.ndarray[DTYPE_t, ndim=3] drho_dt = np.zeros((rho.shape[0],rho.shape[1],rho.shape[2]), dtype=DTYPE)
 	for ei in range(0,rho.shape[0]):
-		drho_dt[ei,:,:] = -1.0j*Comm(H0[ei,:,:],rho[ei,:,:]) - 0.5*AntiComm(Gamma[ei,:,:],rho[ei,:,:]) + R[ei,:,:]
+		drho_dt[ei,:,:] = -1.0j*Comm(H0[ei,:,:],rho[ei,:,:]) - 1.0*AntiComm(Gamma[ei,:,:],rho[ei,:,:]) + R[ei,:,:]
 	return drho_dt
 
 

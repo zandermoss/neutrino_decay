@@ -81,7 +81,6 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 
 	Um=pmnsgen.matrix_gen()
 
-
 	"""
 	The track object is instantiated, and the track length is calculated.
 	"""
