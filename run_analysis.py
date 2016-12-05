@@ -8,9 +8,14 @@ import PMNSGen
 import random
 from math import pi
 import math
-
+import argparse
 import Verosim
 
+parser = argparse.ArgumentParser()
+parser.add_argument("nu3mass", type=float, help="nu3mass")
+parser.add_argument("theta24", type=float, help="theta24")
+parser.add_argument("lifetime", type=float, help="lifetime")
+args = parser.parse_args()
 
 #Commented out command line args for the time being.
 #I think these will need to be re-enabled to accept parameters
@@ -54,7 +59,7 @@ nu_mass = np.zeros(param.numneu, dtype=np.float64)
 nu_mass[0] = 0.0
 nu_mass[1] = math.sqrt(param.dm21sq)
 nu_mass[2] = math.sqrt(param.dm31sq)
-nu_mass[3] = 1.0
+nu_mass[3] = args.nu3mass #input parameter
 phi_mass=0.0
 param.dm2[1,4] = nu_mass[3]**2 - nu_mass[0]**2 #1ev^2
 
@@ -62,13 +67,15 @@ param.dm2[1,4] = nu_mass[3]**2 - nu_mass[0]**2 #1ev^2
 #Initialize mixing angles (CHECK BY PRINTING pg.lamb that all are correct!!)
 pg=PMNSGen.PMNSGen(param)
 pg.sample_params()
-pg.lamb[0,3] = math.pi/4.0
-pg.lamb[1,3] = math.pi/4.0
-pg.lamb[2,3] = math.pi/4.0
-print "LAMB: ",pg.lamb
+pg.lamb[0,3] = 0.0
+pg.lamb[1,3] = -1.0*args.theta24 #input parameter
+pg.lamb[2,3] = 0.0
+print "LAMB: "
+print pg.lamb
 
 #Setting switches on which decay channels to use
 #Decay is from second index to first, like tau!
+#Mass basis, nu_4 decays
 dcy_channels = np.zeros((param.numneu,param.numneu),dtype=np.uint8)
 dcy_channels[0,1]=False
 dcy_channels[0,2]=False
@@ -76,10 +83,11 @@ dcy_channels[0,3]=True
 dcy_channels[1,2]=False
 dcy_channels[1,3]=True
 dcy_channels[2,3]=True
-print "DCYC: ",dcy_channels
+print "DCYC: "
+print dcy_channels
 
 #This is a group lifetime for the time being
-lifetime = 1.0e+4
+lifetime = args.lifetime #input parameter
 
 #Setting decay channel lifetimes (mass basis)
 tau = np.zeros((param.numneu,param.numneu),dtype=np.float64)
@@ -102,20 +110,22 @@ elif ntype==1:
 else:
     print "BAD NEUTRINO TYPE"
 
-e_vec=param.TeV*np.logspace(-1,2,5)
-print "ENERGY: ",e_vec
-ret = sp.AtmosphericNeutrinoOscillationProbability(flv_0,flv_f,e_vec,math.pi,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
+#e_vec=param.TeV*np.logspace(-1,2,5)
+#print "ENERGY: ",e_vec
+#ret = sp.AtmosphericNeutrinoOscillationProbability(flv_0,flv_f,e_vec,math.pi,dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
+#print ret
 
-print ret
-"""
+
 #Loading in energy and zenith edges for nusheep calculation
 edge_file = np.load("energy_zenith_edges.npz")
 e_vec = edge_file['e_edges']
 theta_vec = np.arccos(edge_file['cos_z_edges'])
 
 #Initializing probability arrays
-nubar_prob=np.zeros((len(theta_vec), len(e_vec)))
-nu_prob=np.zeros((len(theta_vec), len(e_vec)))
+#nu_prob=np.zeros((len(theta_vec), len(e_vec)))
+#nubar_prob=np.zeros((len(theta_vec), len(e_vec)))
+nu_prob=np.ones((len(theta_vec), len(e_vec)))
+nubar_prob=np.ones((len(theta_vec), len(e_vec)))
 
 #Calculating neutrino probability array
 ntype=0
@@ -129,8 +139,11 @@ elif ntype==1:
 else:
     print "BAD NEUTRINO TYPE"
 
-for ti in range(0,len(theta_vec)):
-	nu_prob[ti,:] = sp.AtmosphericNeutrinoOscillationProbability(flv_0,flv_f,e_vec,theta_vec[ti],dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
+#for ti in range(0,len(theta_vec)):
+	#nu_prob[ti,:] = sp.AtmosphericNeutrinoOscillationProbability(flv_0,flv_f,e_vec,theta_vec[ti],dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
+
+print "NU PROB: "
+print nu_prob
 
 #Calculating antineutrino probability array
 ntype=1
@@ -144,39 +157,52 @@ elif ntype==1:
 else:
     print "BAD NEUTRINO TYPE"
 
-for ti in range(0,len(theta_vec)):
-	nubar_prob[ti,:] = sp.AtmosphericNeutrinoOscillationProbability(flv_0,flv_f,e_vec,theta_vec[ti],dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
+#for ti in range(0,len(theta_vec)):
+	#nubar_prob[ti,:] = sp.AtmosphericNeutrinoOscillationProbability(flv_0,flv_f,e_vec,theta_vec[ti],dcy_channels,tau,param,pg,nu_mass,phi_mass,regen,mtr_switch)
 
+# TODO check that nu_prob and nubar_prob are correct. Plot them.
 
 #Flattening probability arrays for transmission to verosimilitud
 shapeprod = (nu_prob.shape[0])*(nu_prob.shape[1])
 nu_prob.shape = (shapeprod)
 nubar_prob.shape = (shapeprod)
 
+#save oscillation probabilities for oscillogram
+#np.savez(/home/mmoulai/nu_oscillation.npz,nu_prob)
+#np.save("/home/mmoulai/nu_oscillation",nu_prob)
+
 
 #Change these as needed to point to the right stuff!
-data_path="/home/pinkpig/physics/neutrino_decay/nusheep_change/neutrino_decay/verosimilitud/data/2010.dat"
-flux_path="/home/pinkpig/physics/neutrino_decay/nusheep_change/neutrino_decay/verosimilitud/data/Marjon_Int_HondaGaisser.h5"
-effective_area_path="/home/pinkpig/physics/neutrino_decay/nusheep_change/neutrino_decay/verosimilitud/data/effective_area.h5"
-detector_correction_path="/home/pinkpig/physics/neutrino_decay/nusheep_change/neutrino_decay/verosimilitud/data/conventional_flux.h5"
+data_path="/home/carguelles/work/NeutrinoDecay/neutrino_decay/"
+flux_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/Marjon_Int_HondaGaisser.h5"
+effective_area_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/effective_area.h5"
+detector_correction_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/conventional_flux.h5"
 
+# fix this paths as requiered
+# note that datapath should point to the directory containtning 2010 and 2011.dat
 
 #Running the beast
-#Check years to run!
-V=Verosim.Verosim(param.numneu,0,0,data_path, flux_path, effective_area_path, detector_correction_path, nu_prob, nubar_prob)
-"""
+#Check years to run! -> those numbers are not 0 0 but something else. See header.
+
+V=Verosim.Verosim(param.numneu,0,2,data_path, flux_path, effective_area_path, detector_correction_path, nu_prob, nubar_prob)
+
+nuis_param = np.array([1.0, 0.01, 1.0, 1.0])
 
 
+# check that LLH outputs a number
+print V.LLH(nuis_param)
 
-"""
+print "check 4"
+
 #Minimizing Chi2
-nparams = 3
-param=np.zeros(nparams)
-low_bound=np.zeros(nparams)
-high_bound=np.zeros(nparams)
-param_to_minimize=np.zeros(nparams)
+#these bounds are +/- 3 sigma
+#param_to_minimize = np.array([1, 1, 1, 1]) #1 is true, 0 is false
+param_to_minimize = np.array([True, True, True, True]) #1 is true, 0 is false
+low_bound = np.array([0.0001, -0.15, 0.7, 0.925])
+high_bound = np.array([2.2, 0.15, 1.3, 1.075])
 
-min_ret = V.MinLLH(param,low_bound,high_bound,param_to_minimize)
 
-#np.savez("sterile_oscillation_simp2",exp=expectation,exp_nopert=expectation_nopert,dat=data,chi2=retvec[0],nuisance=nuisance)
-"""
+# TODO FIX ME
+min_ret = V.MinLLH(nuis_param,low_bound,high_bound,param_to_minimize)
+
+print min_ret
