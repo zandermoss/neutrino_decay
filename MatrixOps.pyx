@@ -112,7 +112,7 @@ def H0_Update(DTYPE_t ye, DTYPE_t density, int numneu, np.ndarray[DTYPE_t, ndim=
 def DrhoDt(np.ndarray[DTYPE_t, ndim=3] rho, np.ndarray[DTYPE_t, ndim=3] H0, np.ndarray[DTYPE_t, ndim=3] R, np.ndarray[DTYPE_t, ndim=3] Gamma):
 	cdef np.ndarray[DTYPE_t, ndim=3] drho_dt = np.zeros((rho.shape[0],rho.shape[1],rho.shape[2]), dtype=DTYPE)
 	for ei in range(0,rho.shape[0]):
-		drho_dt[ei,:,:] = -1.0j*Comm(H0[ei,:,:],rho[ei,:,:]) - 1.0*AntiComm(Gamma[ei,:,:],rho[ei,:,:]) + R[ei,:,:]
+		drho_dt[ei,:,:] = -1.0j*Comm(H0[ei,:,:],rho[ei,:,:]) - 0.5*AntiComm(Gamma[ei,:,:],rho[ei,:,:]) + R[ei,:,:]
 	return drho_dt
 
 
