@@ -116,8 +116,8 @@ class SUGen(object):
 
 		R[m,m]=lcos
 		R[n,n]=lcos
-		R[n,m]=(-1.0)*lsin
-		R[m,n]=lsin
+		R[n,m]=lsin
+		R[m,n]=(-1.0)*lsin
 
 		return R
 
