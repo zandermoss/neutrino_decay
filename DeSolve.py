@@ -8,7 +8,7 @@ from scipy.interpolate import UnivariateSpline
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 import MatrixOps as MO
-
+import sys
 
 
 import PhysConst as PC
@@ -26,6 +26,9 @@ import Splines
 # neutrino flavor through the earth, making calls to the func() function, which
 # fetches an updated hamiltonian at each distance step, according to the geometry 
 # information from the track object passed to prop().
+
+
+
 
 class DeSolve(object):
 
@@ -68,8 +71,14 @@ class DeSolve(object):
 			self.anti=True
 		else:
 			print "BAD NEUTRINO TYPE"
-
-
+		"""
+		self.projmats=[]
+		for i in range(0,4):
+			mat=np.zeros((4,4))
+			mat[i,i]=1
+			print mat
+			self.projmats.append(mat)
+		"""
 		#---------------------
 
 
@@ -88,19 +97,27 @@ class DeSolve(object):
 
 
 		ye =self.hamgen.yespline(r)
+		#ye = 0.5
 		#ye =self.yevals[r_arg]
 		density=self.hamgen.dspline(r) #g/cm^3
+		#density=3.0 #g/cm^3
 		#density =self.dvals[r_arg]
 
 
 		H0 = self.hamgen.Hstart		
+		#H0 = np.zeros(self.rhoshapes, np.complex128)
 		if (self.hamgen.matter==True):
 			H0=MO.H0_Update(ye, density, self.param.numneu, self.hamgen.Um, self.anti, self.track.erange, self.hamgen.Hstart)
 
 		R = np.zeros(self.rhoshapes, np.complex128)
 		if (self.hamgen.regen==True):
 			R = MO.Regen(rho, self.track.erange, self.param.numneu, self.hamgen.dcy_channels, self.hamgen.pstar, self.hamgen.m_nu, self.hamgen.m_phi, self.hamgen.tau)
-
+		"""
+		prstr=""
+		for i in range(0,4):
+			prstr+=(str(MO.PyTrace(np.dot(rho[5,:,:],self.projmats[i])))+" ")
+		print prstr
+		"""
 		drho_dt = MO.DrhoDt(rho, H0, R, self.hamgen.Gamma)	
 		drho_dt.shape = self.shapeprod
 
@@ -131,6 +148,10 @@ class DeSolve(object):
 
 		self.r.set_initial_value(rho0, x0)
 		rhof=self.r.integrate(xf)
+
+		if (self.r.successful()!=True):
+			sys.exit("Integrator Failed. Check for stiffness UserWarning above.")
+
 		rhof.shape = self.rhoshapes
 		return rhof
 
