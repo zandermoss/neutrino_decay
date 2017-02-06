@@ -73,12 +73,4 @@ class PMNSGen(SUGen.SUGen):
 
 				n+=1
 			m+=1
-<<<<<<< Updated upstream
-=======
 
-		#for i in range(0,4):
-			#self.lamb[i,3]=0.0;
-
-
-
->>>>>>> Stashed changes
