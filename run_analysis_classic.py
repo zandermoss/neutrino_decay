@@ -68,7 +68,7 @@ param.dm2[1,4] = nu_mass[3]**2 - nu_mass[0]**2 #1ev^2
 pg=PMNSGen.PMNSGen(param)
 pg.sample_params()
 pg.lamb[0,3] = 0.0
-pg.lamb[1,3] = -1.0*args.theta24 #input parameter
+pg.lamb[1,3] = args.theta24 #input parameter
 pg.lamb[2,3] = 0.0
 
 #for i in range (0,3):
@@ -122,9 +122,14 @@ else:
 
 #Loading in energy and zenith edges for nusheep calculation
 path="/home/carguelles/work/NeutrinoDecay/neutrino_decay/"
-edge_file = np.load(path+"energy_zenith_edges.npz")
-e_vec = edge_file['e_edges']*1.0e9
-theta_vec = np.arccos(edge_file['cos_z_edges'])
+# use this file for old code
+#edge_file = np.load(path+"energy_zenith_edges.npz")
+#e_vec = edge_file['e_edges']*1.0e9
+#theta_vec = np.arccos(edge_file['cos_z_edges'])
+
+edge_file = np.load(path+"sterile_edges.npz")
+e_vec = edge_file['true_energy_edges']*1.0e9
+theta_vec = np.arccos(edge_file['costh_edges'])
 
 #We should cut e_vec above index 150
 #e_vec = edge_file['e_edges'][0:1]
@@ -217,7 +222,7 @@ effective_area_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/"
 #V=Verosim.Verosim(param.numneu,0,2,data_path, flux_path, effective_area_path, detector_correction_path, nu_prob, nubar_prob)
 V=Verosim.Verosim(param.numneu, data_path, flux_path, effective_area_path, nu_prob, nubar_prob)
 
-nuis_param = np.array([1.0, 0.01, 1.0, 1.0])
+nuis_param = np.array([1.0, 0.01, 1.0, 1.0, 1.0])
 
 
 # check that LLH outputs a number
@@ -226,10 +231,14 @@ nuis_param = np.array([1.0, 0.01, 1.0, 1.0])
 #Minimizing Chi2
 #these bounds are +/- 3 sigma
 #param_to_minimize = np.array([1, 1, 1, 1]) #1 is true, 0 is false
-param_to_minimize = np.array([True, True, True, True]) #1 is true, 0 is false
-low_bound = np.array([0.0001, -0.15, 0.7, 0.925])
-high_bound = np.array([2.2, 0.15, 1.3, 1.075])
+#param_to_minimize = np.array([True, True, True, True]) #1 is true, 0 is false
+#low_bound = np.array([0.0001, -0.15, 0.7, 0.925])
+#high_bound = np.array([2.2, 0.15, 1.3, 1.075])
 
+nparams = 5
+low_bound=np.array([0.001,-1.0,0.0,0.0,0.91])
+high_bound=np.array([2.0,1.0,2.0,2.0,1.1978])
+param_to_minimize=np.ones(nparams)
 
 # TODO FIX ME
 min_ret = V.MinLLH(nuis_param,low_bound,high_bound,param_to_minimize)
@@ -239,4 +248,4 @@ min_ret = V.MinLLH(nuis_param,low_bound,high_bound,param_to_minimize)
 #print V.GetPertExpectationVec(min_nuis)
 
 #print
-print args.nu3mass, args.theta24, args.lifetime, min_ret[0], min_ret[1], min_ret[2], min_ret[3], min_ret[4]
+print args.nu3mass, args.theta24, args.lifetime, min_ret[0], min_ret[1], min_ret[2], min_ret[3], min_ret[4], min_ret[5]
