@@ -18,12 +18,8 @@ class PMNSGen(SUGen.SUGen):
 	# Initiaizes as a daughter of SUGen, and loads in the 3x3 mixing angles
 	# (best global fit) from PhysConst
 	def __init__(self,param):
-
 		SUGen.SUGen.__init__(self,param)
-
-
 		self.thetas=[param.th12,param.th13,param.th23]
-
 
 	##Generates a matrix corresponding to the lambda parameters.
 	# slight difference from matrix_gen() in SUGen in that no phases 
@@ -49,9 +45,7 @@ class PMNSGen(SUGen.SUGen):
 			return U.T
 
 		else:
-			
 			return U.conj().T
-
 
 	##Samples lambda parameters.
 	# this is all the same as the SUGen sampling function, except that the 3x3
@@ -71,7 +65,7 @@ class PMNSGen(SUGen.SUGen):
 			n=0
 			while (n<=m-1):
 				if ([n,m] in pmns_pairs):
-					self.lamb[n,m]=-1.0*self.thetas[pmns_pairs.index([n,m])]
+					self.lamb[n,m]=self.thetas[pmns_pairs.index([n,m])]
 				else:
 					pass
 					#self.lamb[n,m]=-1.0*self.sample_angle(n,m)
@@ -79,9 +73,3 @@ class PMNSGen(SUGen.SUGen):
 
 				n+=1
 			m+=1
-
-		for i in range(0,4):
-			self.lamb[i,3]=0.0;
-
-
-
