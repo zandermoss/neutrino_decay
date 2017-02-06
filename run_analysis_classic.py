@@ -197,10 +197,15 @@ nubar_prob.shape = (shapeprod)
 
 
 #Change these as needed to point to the right stuff!
-data_path="/home/carguelles/work/NeutrinoDecay/neutrino_decay/"
-flux_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/Marjon_Int_HondaGaisser.h5"
-effective_area_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/effective_area.h5"
-detector_correction_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/conventional_flux.h5"
+#data_path="/home/carguelles/work/NeutrinoDecay/neutrino_decay/"
+#flux_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/Marjon_Int_HondaGaisser.h5"
+#effective_area_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/effective_area.h5"
+#detector_correction_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/conventional_flux.h5"
+
+# THIS FILES PATHS ARE FOR THE STERILE NEUTRINO MC; the new stuff
+data_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/observed_events.dat"
+flux_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/PolyGonato_QGSJET-II-04.h5"
+effective_area_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data/"
 
 # fix this paths as requiered
 # note that datapath should point to the directory containtning 2010 and 2011.dat
@@ -208,8 +213,9 @@ detector_correction_path="/home/carguelles/work/NeutrinoDecay/verosimilitud/data
 #Running the beast
 #Check years to run! -> those numbers are not 0 0 but something else. See header.
 
-
-V=Verosim.Verosim(param.numneu,0,2,data_path, flux_path, effective_area_path, detector_correction_path, nu_prob, nubar_prob)
+# this line is to be used with the old code
+#V=Verosim.Verosim(param.numneu,0,2,data_path, flux_path, effective_area_path, detector_correction_path, nu_prob, nubar_prob)
+V=Verosim.Verosim(param.numneu, data_path, flux_path, effective_area_path, nu_prob, nubar_prob)
 
 nuis_param = np.array([1.0, 0.01, 1.0, 1.0])
 
@@ -229,9 +235,8 @@ high_bound = np.array([2.2, 0.15, 1.3, 1.075])
 min_ret = V.MinLLH(nuis_param,low_bound,high_bound,param_to_minimize)
 #print min_ret
 
-min_nuis = np.array([min_ret[0],min_ret[1],min_ret[2],min_ret[3]])
-print V.GetPertExpectationVec(min_nuis)
-#print V.GetDataVec()
+#min_nuis = np.array([min_ret[0],min_ret[1],min_ret[2],min_ret[3]])
+#print V.GetPertExpectationVec(min_nuis)
 
-print
+#print
 print args.nu3mass, args.theta24, args.lifetime, min_ret[0], min_ret[1], min_ret[2], min_ret[3], min_ret[4]

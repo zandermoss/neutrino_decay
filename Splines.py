@@ -18,10 +18,10 @@ class Spline():
 	# These splines are objects which have been 'pickled' using the dill
 	# module https://pypi.python.org/pypi/dill
 	
-	def __init__(self):
-		self.ye_spline = pickle.load( open( "ye_spline.p", "rb" ) )
-		self.earth_spline = pickle.load( open( "earth_spline.p", "rb" ) )
-		self.line_spline = pickle.load( open( "line_spline.p", "rb" ) )
+	def __init__(self,path="/home/carguelles/work/NeutrinoDecay/neutrino_decay/"):
+		self.ye_spline = pickle.load( open( path+"ye_spline.p", "rb" ) )
+		self.earth_spline = pickle.load( open( path+"earth_spline.p", "rb" ) )
+		self.line_spline = pickle.load( open( path+"line_spline.p", "rb" ) )
 
 	## Returns the electron fraction spline.
 	def GetYe(self):
