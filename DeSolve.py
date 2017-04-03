@@ -155,6 +155,42 @@ class DeSolve(object):
 		rhof.shape = self.rhoshapes
 		return rhof
 
+
+
+
+	def prop_hist(self,track,rho0):	
+		self.shapeprod = (rho0.shape[0])*(rho0.shape[1])*(rho0.shape[2])
+		self.rhoshapes[0] = rho0.shape[0]
+		self.rhoshapes[1] = rho0.shape[1]
+		self.rhoshapes[2] = rho0.shape[2]
+
+		rho0.shape = self.shapeprod
+
+		x0=0.0
+	
+		xf=self.param.km*track.l
+		#print "BASELINE:", self.param.km*track.l
+		self.norm=xf
+		step=self.param.km*track.step
+
+		self.r.set_initial_value(rho0, x0)
+		rhof_array=[]
+
+		distarr = []
+		while self.r.successful() and self.r.t < xf:
+			rhof=self.r.integrate(self.r.t+step)
+			rhof.shape=self.rhoshapes
+			rhof_array.append(rhof)
+			if (self.r.successful()!=True):
+				sys.exit("Integrator Failed. Check for stiffness UserWarning above.")
+			distarr.append(self.r.t/self.param.km)
+		print len(rhof_array)
+
+		np_dist=np.asarray(distarr)
+		return np_dist,rhof_array
+
+
+
 	## Propagates a neutrino of flavor i along a track defined by the track argument. Returns the entire history of propagation (distances, transition amplitudes to flavor j).
 	# Calculates the total track length from the track object (as well as the step resolution). Steps the initial neutrino state forward along the track, calling func() for hamiltonian updates at each stage. At the end of the evolution, a vector of the complex amplitude squared of the inner product of each state in the iterative integration process with the jth flavor state is calculated and returned, along with a vector of relevant distances (distance at each propagation step).
 	# @par track a Track object with the track geometry.

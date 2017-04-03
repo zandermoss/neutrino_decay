@@ -150,6 +150,105 @@ def AtmosphericNeutrinoOscillationProbability(initial_flavor,final_flavor,
 
 	return amps
 
+
+
+
+
+
+def OscHistory(initial_flavor,final_flavor,
+                           erange,theta,dcy_channels,tau,myparam,pmnsgen,nu_mass,phi_mass,regen,matter):
+
+
+	""" 
+	Here, we have the option of sampling a random decay matrix, but currently
+	we're specifying the decay parameters and feeding them in through the ugen 
+	object. When it is time to search the parameter space by sampling, the first two
+	lines would implement that sampling.
+	"""
+
+	#ugen=SU.SUGen(myparam)
+	#ugen.sample_params()
+	#Ug=ugen.matrix_gen()
+
+	"""
+	The Um matrix is generated from the PMNSGen object.
+	""" 
+
+	Um=pmnsgen.matrix_gen()
+
+	"""
+	The track object is instantiated, and the track length is calculated.
+	"""
+
+	track=Track.Track(myparam,resolution,erange,theta,False)
+	track.calc_l()
+
+
+	"""
+	The hamgen object is instantiated. Here are examples of different propagation
+	modes. The first line has both eig_dcy and splines arguments, so the propagation
+	will take place in earth matter, and decay effects will be included. The second
+	line has no decay effects, but matter is included. The third has decay but no 
+	matter, and the 4th is a simple vacuum propagation.
+	"""
+
+	vhamgen=HamGen.HamGen(myparam,Um,tau,nu_mass,phi_mass,track,True,dcy_channels,splines,regen,matter)
+#	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,splines)
+#	vhamgen=HamGen.HamGen(myparam,Um,Ug,track,eig_dcy,None)
+	#vhamgen=HamGen.HamGen(myparam,Um,Ug,track,None,None)
+
+	#prem solution
+
+#	projmats = []
+#	for i in range(0,myparam.numneu):
+#		pm = MyProjMat(i,myparam.numneu)
+#		pm_mass = np.dot(Um.conj().T,np.dot(pm,Um))
+#		projmats.append(pm_mass)
+
+
+	p0 = MyProjMat(initial_flavor,myparam.numneu)
+	pf = MyProjMat(final_flavor,myparam.numneu)
+
+	rho0_mass=np.dot(Um.conj().T,np.dot(p0,Um))
+	rhof_mass=np.dot(Um.conj().T,np.dot(pf,Um))
+
+
+
+	rho0=np.zeros([len(erange),myparam.numneu,myparam.numneu],np.complex128)
+	for ei in range(0,len(erange)):
+		rho0[ei,:,:] = rho0_mass	
+
+	
+	"""
+	A DeSolve object is instantiated, with the freshly minted hamiltonian generator
+	and PhysConst parameters as arguments.
+	"""
+
+	desolve= DeSolve.DeSolve(vhamgen,myparam)
+
+	"""
+	The transition ampliude from initial_flavor to final_flavor is calculated using
+	the DeSolve prop function. This amplitude is then returned to the calling script.
+	"""
+
+	dists,rhof_array=desolve.prop_hist(track,rho0)
+
+	amps= np.zeros((len(rhof_array),len(erange)))
+	print amps.shape
+#	sumamps= np.zeros([len(erange)])
+	for j in range(0,len(rhof_array)):
+		for i in range(0,len(erange)):
+			amps[j,i] = np.real(MyTrace(np.dot((rhof_array[j])[i],rhof_mass)))
+
+#	for i in range(0,len(erange)):
+#		for j in range(0,myparam.numneu):
+#			sumamps[i] += np.real(MyTrace(np.dot(rhof[i],projmats[j])))
+
+	return dists,amps
+
+
+
+
 #def PropagationHistory(initial_flavor,final_flavor,
 #                           energy,theta,myparam,pmnsgen,ugen,eig_dcy):
 #
