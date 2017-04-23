@@ -61,7 +61,7 @@ class HamGen(object):
 					if nu_mass[i] + phi_mass > nu_mass[j]:
 						print "BAD: masses don't match up!"
 					else:
-						self.pstar[i,j] =(1.0/(2.0*nu_mass[j]))*((nu_mass[j]**2 - (nu_mass[i] + phi_mass)**2)*(nu_mass[j]**2 - (nu_mass[i] - phi_mass)**2))
+						self.pstar[i,j] =(1.0/(2.0*nu_mass[j]))*((nu_mass[j]**2 - (nu_mass[i] + phi_mass)**2)*math.sqrt(nu_mass[j]**2 - (nu_mass[i] - phi_mass)**2))
 		self.m_nu = nu_mass
 		self.m_phi = phi_mass	
 		self.dcy_channels = dcy_channels
