@@ -135,10 +135,13 @@ class PhysicsConstants(object):
 		#self.th13 = 0.0
 		#self.th23 = self.PIby2/2.0
 		#self.th23 = 0.785398
-		self.th12=0.584 # ConchaFit!  JHEP 11 (2014) 052
-		self.th13=0.148 # ConchaFit!  JHEP 11 (2014) 052
-		self.th23=0.737 # ConchaFit!  JHEP 11 (2014) 052`
+		#self.th12=0.584 # ConchaFit!  JHEP 11 (2014) 052
+		#self.th13=0.148 # ConchaFit!  JHEP 11 (2014) 052
+		#self.th23=0.737 # ConchaFit!  JHEP 11 (2014) 052`
 
+		self.th12=0.583996 # NuSQUIDS
+		self.th13=0.14819 # NuSQUIDS
+		self.th23=0.737324 # NuSQUIDS
 
 		self.th14 = 0.0
 		self.th24 = 0.0
